@@ -1,5 +1,5 @@
 import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 const mock_server = false;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
@@ -189,10 +189,10 @@ export const fetchCurrentJobs = async (): Promise<Array<RunningJob>> => {
     } else {
       axios
         .get("/api/running_jobs")
-        .then((response) => {
+        .then((response: AxiosResponse) => {
           resolve(response.data as Array<RunningJob>);
         })
-        .catch((e) => {
+        .catch((e: any) => {
           console.error(e);
         });
     }
@@ -208,10 +208,10 @@ export const fetchJobHistory = async (): Promise<Array<FinishedJob>> => {
     } else {
       axios
         .get("/api/finished_jobs")
-        .then((response) => {
+        .then((response: AxiosResponse) => {
           resolve(response.data as Array<FinishedJob>);
         })
-        .catch((e) => {
+        .catch((e: any) => {
           console.error(e);
         });
     }
@@ -227,10 +227,10 @@ export const fetchQuotas = async (): Promise<Array<Quota>> => {
     } else {
       axios
         .get("/api/quotas")
-        .then((response) => {
+        .then((response: AxiosResponse) => {
           resolve(response.data as Array<Quota>);
         })
-        .catch((e) => {
+        .catch((e: any) => {
           console.error(e);
         });
     }
