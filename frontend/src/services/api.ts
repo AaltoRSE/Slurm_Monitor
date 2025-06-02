@@ -188,7 +188,7 @@ export const fetchCurrentJobs = async (): Promise<Array<RunningJob>> => {
       }, MOCK_DELAY);
     } else {
       axios
-        .get("/api/running_jobs")
+        .get("api/running_jobs")
         .then((response: AxiosResponse) => {
           resolve(response.data as Array<RunningJob>);
         })
@@ -207,7 +207,7 @@ export const fetchJobHistory = async (): Promise<Array<FinishedJob>> => {
       }, MOCK_DELAY);
     } else {
       axios
-        .get("/api/finished_jobs")
+        .get("api/finished_jobs")
         .then((response: AxiosResponse) => {
           resolve(response.data as Array<FinishedJob>);
         })
@@ -226,7 +226,7 @@ export const fetchQuotas = async (): Promise<Array<Quota>> => {
       }, MOCK_DELAY);
     } else {
       axios
-        .get("/api/quotas")
+        .get("api/quotas")
         .then((response: AxiosResponse) => {
           resolve(response.data as Array<Quota>);
         })
