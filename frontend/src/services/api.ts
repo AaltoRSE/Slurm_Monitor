@@ -11,6 +11,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     status: "running",
     startTime: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
     endTime: new Date(Date.now() + 7200000).toISOString(), // 2 hours from now
+    nodes: 1,
     resources: {
       cpus: 4,
       memory: 32,
@@ -25,6 +26,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     id: "42390",
     name: "data_preprocessing",
     status: "queued",
+    nodes: 1,
     startTime: new Date(Date.now() + 1800000).toISOString(), // 30 min from now (projected)
     endTime: new Date(Date.now() + 5400000).toISOString(), // 1.5 hours from now (projected)
     resources: {
@@ -37,6 +39,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     id: "42391",
     name: "genome_assembly",
     status: "running",
+    nodes: 1,
     startTime: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
     endTime: new Date(Date.now() + 14400000).toISOString(), // 4 hours from now
     resources: {
@@ -49,6 +52,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     id: "42392",
     name: "molecular_dynamics",
     status: "queued",
+    nodes: 2,
     startTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now (projected)
     endTime: new Date(Date.now() + 36000000).toISOString(), // 10 hours from now (projected)
     resources: {
@@ -69,6 +73,7 @@ const mockJobHistory: Array<FinishedJob> = [
     id: "42385",
     name: "parameter_sweep",
     status: "completed",
+    nodes: 1,
     startTime: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
     endTime: new Date(Date.now() - 79200000).toISOString(), // 22 hours ago
     resources: {
@@ -85,6 +90,7 @@ const mockJobHistory: Array<FinishedJob> = [
     id: "42386",
     name: "image_processing",
     status: "failed",
+    nodes: 1,
     startTime: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
     endTime: new Date(Date.now() - 41400000).toISOString(), // 11.5 hours ago
     resources: {
@@ -101,6 +107,7 @@ const mockJobHistory: Array<FinishedJob> = [
     id: "42387",
     name: "neural_network_training",
     status: "completed",
+    nodes: 2,
     startTime: new Date(Date.now() - 28800000).toISOString(), // 8 hours ago
     endTime: new Date(Date.now() - 18000000).toISOString(), // 5 hours agoresources:
     resources: {
@@ -122,6 +129,8 @@ const mockJobHistory: Array<FinishedJob> = [
     id: "42388",
     name: "statistical_analysis",
     status: "completed",
+
+    nodes: 1,
     startTime: new Date(Date.now() - 10800000).toISOString(), // 3 hours ago
     endTime: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
     resources: {

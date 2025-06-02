@@ -1,4 +1,4 @@
-export type RunningJob = {
+type Job = {
   id: string;
   name: string;
   status: string;
@@ -14,6 +14,9 @@ export type RunningJob = {
     };
   };
   command: string;
+};
+export type RunningJob = Job & {
+  allocatedNodes?: string;
 };
 
 export type FinishedJob = RunningJob & {

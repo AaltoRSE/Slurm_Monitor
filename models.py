@@ -25,7 +25,7 @@ class Job(BaseModel):
 
 
 class RunningJob(Job):
-    pass
+    allocatedNodes: Optional[str] = None
 
 
 class JobEfficiency(BaseModel):

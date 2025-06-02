@@ -24,7 +24,13 @@
       </template>
 
       <Column field="id" header="Job ID" sortable style="min-width: 6.5rem" />
-      <Column v-if="full" field="name" header="Job Name" sortable style="min-width: 10rem" />
+      <Column
+        v-if="full"
+        field="name"
+        header="Job Name"
+        sortable
+        style="min-width: 10rem"
+      />
       <Column field="status" header="Status" sortable style="min-width: 3rem">
         <template #body="slotProps">
           <Tag
@@ -33,12 +39,24 @@
           />
         </template>
       </Column>
-      <Column v-if="full" field="startTime" header="Start Time" sortable style="min-width: 14rem">
+      <Column
+        v-if="full"
+        field="startTime"
+        header="Start Time"
+        sortable
+        style="min-width: 14rem"
+      >
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.startTime) }}
         </template>
       </Column>
-      <Column v-if="full" field="endTime" header="End Time" sortable style="min-width: 14rem">
+      <Column
+        v-if="full"
+        field="endTime"
+        header="End Time"
+        sortable
+        style="min-width: 14rem"
+      >
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.endTime) }}
         </template>
@@ -47,7 +65,10 @@
       <Column v-if="full" header="CPU Usage" style="min-width: 10rem">
         <template #body="slotProps">
           <EfficiencyBar
-            v-if="slotProps.data.efficiency && slotProps.data.efficiency.cpu !== null"
+            v-if="
+              slotProps.data.efficiency &&
+              slotProps.data.efficiency.cpu !== null
+            "
             :value="slotProps.data.efficiency.cpu"
           />
           <span v-else>N/A</span>
@@ -57,7 +78,10 @@
       <Column v-if="full" header="Memory Usage" style="min-width: 10rem">
         <template #body="slotProps">
           <EfficiencyBar
-            v-if="slotProps.data.efficiency && slotProps.data.efficiency.memory !== null"
+            v-if="
+              slotProps.data.efficiency &&
+              slotProps.data.efficiency.memory !== null
+            "
             :value="slotProps.data.efficiency.memory"
           />
           <span v-else>N/A</span>
@@ -67,7 +91,10 @@
       <Column v-if="full" header="GPU Usage" style="min-width: 10rem">
         <template #body="slotProps">
           <EfficiencyBar
-            v-if="slotProps.data.efficiency.gpu || slotProps.data.efficiency.gpu == 0"
+            v-if="
+              slotProps.data.efficiency.gpu ||
+              slotProps.data.efficiency.gpu == 0
+            "
             :value="slotProps.data.efficiency.gpu"
           />
           <span v-else>N/A</span>
@@ -92,138 +119,136 @@
       @hide="onDetailHide"
       @show="onShow"
       ref="JobDetails"
-      :style="{ pointerEvents: keepDisplay.value ? 'auto' : 'none' }"
+      :style="{ pointerEvents: keepDisplay ? 'auto' : 'none' }"
     >
-      <JobCard :job="selectedJob"></JobCard>
+      <JobCard v-if="selectedJob" :job="selectedJob"></JobCard>
     </Popover>
   </div>
 </template>
 
-<script setup>
-import { defineProps, nextTick, ref } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Tag from 'primevue/tag'
-import ProgressSpinner from 'primevue/progressspinner'
-import EfficiencyBar from './EfficiencyBar.vue'
-import { Button, Popover } from 'primevue'
-import JobCard from './JobCard.vue'
+<script setup lang="ts">
+import { defineProps, nextTick, ref } from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Tag from "primevue/tag";
+import ProgressSpinner from "primevue/progressspinner";
+import EfficiencyBar from "./EfficiencyBar.vue";
+import { Button, Popover } from "primevue";
+import JobCard from "./JobCard.vue";
+import type { RunningJob, FinishedJob } from "@/lib/types";
+const selectedJob = ref<FinishedJob | RunningJob | null>(null);
+const keepDisplay = ref(false);
+const JobDetails = ref();
 
-const selectedJob = ref(null)
-const keepDisplay = ref(false)
-const JobDetails = ref()
-
-const props = defineProps({
+defineProps({
   jobs: {
-    type: Array,
-    required: true
+    type: Array<RunningJob | FinishedJob>,
+    required: true,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   full: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
-const handleMouseEnter = (event, jobData) => {
-  console.log('Shooting mouse enter')
+const handleMouseEnter = (event: any, jobData: FinishedJob) => {
+  console.log("Shooting mouse enter");
   if (keepDisplay.value) {
     // we have something else displayed at the moment, so ignore this.
-    return
+    return;
   }
   // also do nothing if something is already selected
   if (selectedJob.value) {
-    return
+    return;
   }
-  toggleJobDetails(event, jobData)
-}
+  toggleJobDetails(event, jobData);
+};
 
-const handleMouseLeave = (event, jobData) => {
+const handleMouseLeave = (event: any, jobData: FinishedJob) => {
   if (keepDisplay.value) {
     // we have something else displayed at the moment, so ignore this.
-    return
+    return;
   }
   if (selectedJob.value) {
     // leave should only call selection if we have one selected
-    toggleJobDetails(event, jobData)
+    toggleJobDetails(event, jobData);
   }
-}
-const handleClick = (event, jobData) => {
+};
+const handleClick = (event: any, jobData: FinishedJob) => {
   // if jobData wasn't set or was set to something else, we want to display
   // the clicked element and keep it, otherwise we want to toggle it
   if (selectedJob.value == null || selectedJob.value?.id != jobData.id) {
     // we change from nothing or to a different element.
-    keepDisplay.value = true
+    keepDisplay.value = true;
     //I think we need to reset the display data here.
-    selectedJob.value = null
+    selectedJob.value = null;
   } else {
     // we keep being in the same element, thus just toggle.
-    keepDisplay.value = !keepDisplay.value
+    keepDisplay.value = !keepDisplay.value;
   }
 
   if (keepDisplay.value) {
     if (!selectedJob.value) {
-      toggleJobDetails(event, jobData)
+      toggleJobDetails(event, jobData);
     }
   } else {
     // we don't want to keep the display
     if (selectedJob.value) {
       // and we have something selected. So unselect it.
-      toggleJobDetails(event, jobData)
+      toggleJobDetails(event, jobData);
     }
   }
-}
-const onDetailHide = (event) => {
-  console.log(event)
-  console.log('Got Hide event')
-  keepDisplay.value = false
-  selectedJob.value = null
-}
-const onShow = (event) => {
-  console.log('Got Show event')
-}
-const toggleJobDetails = (event, jobData) => {
-  const currentKeepDisplay = keepDisplay.value
+};
+const onDetailHide = () => {
+  keepDisplay.value = false;
+  selectedJob.value = null;
+};
+const onShow = () => {
+  console.log("Got Show event");
+};
+const toggleJobDetails = (event: any, jobData: FinishedJob) => {
+  const currentKeepDisplay = keepDisplay.value;
   if (selectedJob.value) {
-    JobDetails.value.hide()
+    JobDetails.value.hide();
   }
   if (selectedJob.value?.id === jobData.id) {
-    selectedJob.value = null
+    selectedJob.value = null;
   } else {
-    selectedJob.value = jobData
+    selectedJob.value = jobData;
     nextTick(() => {
-      selectedJob.value = jobData
-      keepDisplay.value = currentKeepDisplay
-      JobDetails.value.show(event)
-    })
+      selectedJob.value = jobData;
+      keepDisplay.value = currentKeepDisplay;
+      JobDetails.value.show(event);
+    });
   }
-}
+};
 
-const getStatusSeverity = (status) => {
+const getStatusSeverity = (status: string) => {
   switch (status) {
-    case 'running':
-      return 'success'
-    case 'queued':
-      return 'info'
-    case 'completed':
-      return 'success'
-    case 'failed':
-      return 'danger'
+    case "running":
+      return "success";
+    case "queued":
+      return "info";
+    case "completed":
+      return "success";
+    case "failed":
+      return "danger";
     default:
-      return 'warning'
+      return "warning";
   }
-}
+};
 
-const formatDateTime = (dateString) => {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
-}
+const formatDateTime = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+};
 </script>

@@ -7,7 +7,9 @@
 
           <div>
             <Button
-              :icon="showJobs ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+              :icon="
+                showJobs ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
+              "
               @click="showJobs = !showJobs"
             >
             </Button>
@@ -29,7 +31,9 @@
           <div>Job History</div>
           <div>
             <Button
-              :icon="showHistory ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+              :icon="
+                showHistory ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
+              "
               @click="showHistory = !showHistory"
             >
             </Button>
@@ -48,22 +52,25 @@
     <Card class="col-12">
       <template #title>Resource Quotas</template>
       <template #content>
-        <QuotaDisplay :quotas="jobStore.quotas" :loading="jobStore.loading.quotas" />
+        <QuotaDisplay
+          :quotas="jobStore.quotas"
+          :loading="jobStore.loading.quotas"
+        />
       </template>
     </Card>
   </div>
 </template>
 
-<script setup>
-import { useJobStore } from '../stores/jobStore'
-import Card from 'primevue/card'
-import Button from 'primevue/button'
-import JobsTable from '../components/JobsTable.vue'
-import JobHistory from '../components/JobHistory.vue'
-import QuotaDisplay from '../components/QuotaDisplay.vue'
-import { ref } from 'vue'
+<script setup lang="ts">
+import { useJobStore } from "../stores/jobStore";
+import Card from "primevue/card";
+import Button from "primevue/button";
+import JobsTable from "@/components/JobsTable.vue";
+import JobHistory from "@/components/JobHistory.vue";
+import QuotaDisplay from "@/components/QuotaDisplay.vue";
+import { ref } from "vue";
 
-const jobStore = useJobStore()
-const showJobs = ref(false)
-const showHistory = ref(false)
+const jobStore = useJobStore();
+const showJobs = ref(false);
+const showHistory = ref(false);
 </script>

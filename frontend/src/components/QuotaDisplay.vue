@@ -66,15 +66,16 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineProps } from "vue";
 import ProgressBar from "primevue/progressbar";
 import ProgressSpinner from "primevue/progressspinner";
 import { filesize } from "filesize";
+import type { Quota } from "@/lib/types";
 
-const props = defineProps({
+defineProps({
   quotas: {
-    type: Array,
+    type: Array<Quota>,
     required: true,
   },
   loading: {
@@ -83,24 +84,24 @@ const props = defineProps({
   },
 });
 
-const getPercentage = (quota) => {
+const getPercentage = (quota: Quota) => {
   return Math.round((quota.used / quota.total) * 100);
 };
 
-const getFilePercentage = (quota) => {
+const getFilePercentage = (quota: Quota) => {
   return Math.round((quota.used_files / quota.files) * 100);
 };
 
-const formatValue = (value) => {
+const formatValue = (value: number) => {
   return filesize(value);
 };
-const getProgressBarClass = (percentage) => {
+const getProgressBarClass = (percentage: number) => {
   if (percentage > 90) return "p-progressbar-danger";
   if (percentage > 75) return "p-progressbar-warning";
   return "p-progressbar-success";
 };
 
-const getTextColorClass = (percentage) => {
+const getTextColorClass = (percentage: number) => {
   if (percentage > 90) return "text-red-500";
   if (percentage > 75) return "text-orange-500";
   return "text-green-500";

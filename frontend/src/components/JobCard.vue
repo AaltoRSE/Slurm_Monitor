@@ -11,14 +11,18 @@
       <div class="col-6">
         <div class="mb-2">
           <i class="pi pi-calendar mr-2"></i>
-          <span class="font-semibold">Start:</span> {{ formatDateTime(job.startTime) }}
-          <span v-if="job.status === 'queued'" class="text-xs text-500">(Projected)</span>
+          <span class="font-semibold">Start:</span>
+          {{ formatDateTime(job.startTime) }}
+          <span v-if="job.status === 'queued'" class="text-xs text-500"
+            >(Projected)</span
+          >
         </div>
         <div>
           <i class="pi pi-calendar-times mr-2"></i>
-          <span class="font-semibold">End:</span> {{ formatDateTime(job.endTime) }}
+          <span class="font-semibold">End:</span>
+          {{ formatDateTime(job.endTime) }}
           <span class="text-xs text-500">{{
-            job.status === 'completed' ? '' : '(Projected)'
+            job.status === "completed" ? "" : "(Projected)"
           }}</span>
         </div>
       </div>
@@ -30,11 +34,13 @@
         </div>
         <div class="mb-2">
           <i class="pi pi-database mr-2"></i>
-          <span class="font-semibold">Memory:</span> {{ job.resources.memory }} GB
+          <span class="font-semibold">Memory:</span>
+          {{ job.resources.memory }} GB
         </div>
         <div v-if="job.resources.gpu">
           <i class="pi pi-sliders-h mr-2"></i>
-          <span class="font-semibold">GPU:</span> {{ job.resources.gpu.amount }}x
+          <span class="font-semibold">GPU:</span>
+          {{ job.resources.gpu.amount }}x
           {{ job.resources.gpu.type }}
         </div>
       </div>
@@ -58,7 +64,10 @@
               class="h-1rem"
             />
           </div>
-          <div v-if="(job as FinishedJob).efficiency.gpu !== undefined" class="mb-2">
+          <div
+            v-if="(job as FinishedJob).efficiency.gpu !== undefined"
+            class="mb-2"
+          >
             <span class="font-semibold mr-2">GPU:</span>
             <ProgressBar
               :value="(job as FinishedJob).efficiency.gpu"
@@ -70,7 +79,9 @@
       </div>
     </div>
     <div class="p-2 border-top-1 border-300">
-      <div class="command-preview overflow-hidden text-overflow-ellipsis white-space-nowrap">
+      <div
+        class="command-preview overflow-hidden text-overflow-ellipsis white-space-nowrap"
+      >
         <i class="pi pi-code mr-2"></i>
         {{ job.command }}
       </div>
@@ -79,46 +90,46 @@
 </template>
 
 <script setup lang="ts">
-import Tag from 'primevue/tag'
-import ProgressBar from 'primevue/progressbar'
-import type { FinishedJob, RunningJob } from '@/lib/types'
+import Tag from "primevue/tag";
+import ProgressBar from "primevue/progressbar";
+import type { FinishedJob, RunningJob } from "@/lib/types";
 
 // Props
-const props = defineProps<{
-  job: RunningJob | FinishedJob
-}>()
+defineProps<{
+  job: RunningJob | FinishedJob;
+}>();
 
 // Utility functions
 const getStatusSeverity = (status: string) => {
   switch (status.toLowerCase()) {
-    case 'running':
-      return 'success'
-    case 'queued':
-      return 'info'
-    case 'completed':
-      return 'success'
-    case 'cancelled':
-      return 'warning'
-    case 'failed':
-      return 'danger'
+    case "running":
+      return "success";
+    case "queued":
+      return "info";
+    case "completed":
+      return "success";
+    case "cancelled":
+      return "warning";
+    case "failed":
+      return "danger";
     default:
-      return 'secondary'
+      return "secondary";
   }
-}
+};
 
 const formatDateTime = (dateString: string) => {
   try {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
   } catch (e) {
-    return 'Invalid date'
+    return "Invalid date";
   }
-}
+};
 </script>
 
 <style scoped>

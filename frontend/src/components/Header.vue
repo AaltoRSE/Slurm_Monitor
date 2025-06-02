@@ -1,6 +1,7 @@
-
 <template>
-  <header class="flex align-items-center justify-content-between p-3 bg-primary text-white">
+  <header
+    class="flex align-items-center justify-content-between p-3 bg-primary text-white"
+  >
     <div class="flex align-items-center gap-2">
       <i class="pi pi-server text-xl"></i>
       <h1 class="text-xl font-bold m-0">Slurm Cluster Status</h1>
@@ -12,10 +13,12 @@
   </header>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import Avatar from 'primevue/avatar'
+<script setup lang="ts">
+import { ref } from "vue";
+import Avatar from "primevue/avatar";
 
-const username = ref('User.Name')
-const userAvatar = ref('https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y')
+const username = ref("User.Name");
+const userAvatar = ref(
+  "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+);
 </script>

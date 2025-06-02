@@ -5,10 +5,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from "vue";
 import Toast from "primevue/toast";
-import Layout from "./components/Layout.vue";
+import Layout from "@/components/Layout.vue";
 import { useJobStore } from "./stores/jobStore";
 
 const jobStore = useJobStore();

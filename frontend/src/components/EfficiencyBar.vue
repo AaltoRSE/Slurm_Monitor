@@ -4,33 +4,31 @@
       class="efficiency-bar-fill"
       :style="{
         width: `${value}%`,
-        backgroundColor: getColorForValue(value)
+        backgroundColor: getColorForValue(value),
       }"
     ></div>
     <span class="efficiency-bar-label">{{ value }}%</span>
   </div>
 </template>
 
-<script>
-const EfficiencyBar = {
-  name: 'EfficiencyBar',
+<script lang="ts">
+export default {
+  name: "EfficiencyBar",
   props: {
     value: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   methods: {
-    getColorForValue(value) {
-      if (value < 30) return '#ef4444' // Low efficiency - red
-      if (value < 70) return '#f59e0b' // Medium efficiency - amber
-      return '#22c55e' // High efficiency - green
-    }
+    getColorForValue(value: number) {
+      if (value < 30) return "#ef4444"; // Low efficiency - red
+      if (value < 70) return "#f59e0b"; // Medium efficiency - amber
+      return "#22c55e"; // High efficiency - green
+    },
   },
-  template: '#internal'
-}
-
-export default EfficiencyBar
+  template: "#internal",
+};
 </script>
 
 <style scoped>

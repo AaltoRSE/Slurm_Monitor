@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<script setup>
-import Header from './Header.vue'
-import { RouterView } from 'vue-router'
+<script setup lang="ts">
+import Header from "./Header.vue";
+import { RouterView } from "vue-router";
 </script>

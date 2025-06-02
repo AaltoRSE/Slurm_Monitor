@@ -136,6 +136,11 @@ def convert_DB_to_Job(db_job: DBJob, running: bool, queue: SQUEUE):
     gpu_eff = db_job.get("GPUeff", float)
     cpu_eff = db_job.get("CPUeff", float)
     mem_eff = db_job.get("MemEff", float)
+    alloc_nodes, expected_nodes = queue.get_nodes(id)
+    used_nodes = expected_nodes if status == "PENDING" else alloc_nodes
+    if used_nodes == None:
+        used_nodes = "unknown"
+
     gpu_res = None if gpus is None else GPUResources(amount=gpus, type=gpu_type)
     res = Resources(cpus=cpus, memory=memory, gpus=gpu_res)
     if running:

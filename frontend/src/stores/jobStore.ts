@@ -1,8 +1,12 @@
-import { defineStore } from 'pinia'
-import { fetchCurrentJobs, fetchJobHistory, fetchQuotas } from '../services/api'
-import type { FinishedJob, Quota, RunningJob } from '@/lib/types'
+import { defineStore } from "pinia";
+import {
+  fetchCurrentJobs,
+  fetchJobHistory,
+  fetchQuotas,
+} from "../services/api";
+import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
 
-export const useJobStore = defineStore('job', {
+export const useJobStore = defineStore("job", {
   state: () => {
     return {
       currentJobs: [] as Array<RunningJob>,
@@ -11,43 +15,43 @@ export const useJobStore = defineStore('job', {
       loading: {
         currentJobs: false,
         jobHistory: false,
-        quotas: false
-      }
-    }
+        quotas: false,
+      },
+    };
   },
   actions: {
     async fetchCurrentJobsData() {
-      this.loading.currentJobs = true
+      this.loading.currentJobs = true;
       try {
-        this.currentJobs = await fetchCurrentJobs()
+        this.currentJobs = await fetchCurrentJobs();
       } catch (error) {
-        console.error('Error fetching current jobs:', error)
+        console.error("Error fetching current jobs:", error);
       } finally {
-        this.loading.currentJobs = false
+        this.loading.currentJobs = false;
       }
     },
 
     async fetchJobHistoryData() {
-      this.loading.jobHistory = true
+      this.loading.jobHistory = true;
       try {
-        this.jobHistory = await fetchJobHistory()
+        this.jobHistory = await fetchJobHistory();
       } catch (error) {
-        console.error('Error fetching job history:', error)
+        console.error("Error fetching job history:", error);
       } finally {
-        this.loading.jobHistory = false
+        this.loading.jobHistory = false;
       }
     },
 
     async fetchQuotasData() {
-      this.loading.quotas = true
+      this.loading.quotas = true;
       try {
-        this.quotas = await fetchQuotas()
-        console.log(this.quotas)
+        this.quotas = await fetchQuotas();
+        console.log(this.quotas);
       } catch (error) {
-        console.error('Error fetching quotas:', error)
+        console.error("Error fetching quotas:", error);
       } finally {
-        this.loading.quotas = false
+        this.loading.quotas = false;
       }
-    }
-  }
-})
+    },
+  },
+});
