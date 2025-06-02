@@ -36,8 +36,8 @@ def convert_quota_dict_to_quota(quota_dict, path, name):
         path=path,
         used=parse_storage(quota_dict["used"]),
         total=parse_storage(quota_dict["available"]),
-        used=parse_file_count(quota_dict["used_files"]),
-        used=parse_file_count(quota_dict["files"]),
+        used_files=parse_file_count(quota_dict["used_files"]),
+        files=parse_file_count(quota_dict["files"]),
     )
 
 
