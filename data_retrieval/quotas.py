@@ -57,7 +57,7 @@ def get_quotas() -> List[Quota]:
     username = os.environ.get("USER")
     for line in lines[1:]:
         # Match the expected format
-        home_match = re.search(user_quotas)
+        home_match = re.search(user_quotas, line)
         if home_match:
             group_dict = home_match.groupdict()
             if group_dict["name"] == "home":
@@ -72,7 +72,7 @@ def get_quotas() -> List[Quota]:
                         group_dict, path=f"/scratch/work/{username}", name="Work"
                     )
                 )
-        group_match = re.search(group_quotas)
+        group_match = re.search(group_quotas, line)
         if group_match:
             group_dict = home_match.groupdict()
             if group_dict["name"] != username:
