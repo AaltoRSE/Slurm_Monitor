@@ -18,12 +18,12 @@ def get_current_jobs():
 
 
 @monitor_app.route("/api/finished_jobs")
-def get_current_jobs():
+def get_finished_jobs():
     return jsonify([data.model_dump() for data in data_retrieval.fetch_finished_jobs()])
 
 
 @monitor_app.route("/api/quotas")
-def get_current_jobs():
+def get_quotas():
     return jsonify([data.model_dump() for data in quotas.get_quotas()])
 
 
