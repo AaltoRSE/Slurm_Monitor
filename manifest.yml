@@ -1,0 +1,6 @@
+name: BMI calculator
+description: Calculates BMI
+icon: fa://hdd-o
++category: Applications
++subcategory: Utilities
+

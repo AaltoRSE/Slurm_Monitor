@@ -1,0 +1,12 @@
+name: ood-python-app-template
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - flask
+  - sqlite3
+  - pip
+  - pydantic
+  - pip:
+    - slurm2sql
+  

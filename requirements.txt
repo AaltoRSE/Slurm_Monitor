@@ -1,0 +1,4 @@
+flask
+pywebio
+slurm2sql
+pydantic

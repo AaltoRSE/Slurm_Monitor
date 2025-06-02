@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #visualization {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        min-height: 100px;
+        background-color: #f9f9f9;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Cluster Data Visualization</h1>
+    <iframe id="grafanaFrame" width="450" height="200" frameborder="0"></iframe>
+    <button id="fetchBtn">Fetch Data</button>
+    <div id="visualization">Loading...</div>
+    <script>
+      // Dynamically set the iframe src relative to the current window's path
+      const iframe = document.getElementById("grafanaFrame");
+      iframe.src =
+        window.location.pathname +
+        "/api/grafana/d-solo/rYdddlPWk/node-exporter?orgId=1&refresh=30s&from=1745993649531&to=1745994549532&panelId=20";
+    </script>
+    <script>
+      document
+        .getElementById("fetchBtn")
+        .addEventListener("click", async () => {
+          const visualizationDiv = document.getElementById("visualization");
+          visualizationDiv.textContent = "Loading...";
+
+          try {
+            const response = await fetch(
+              window.location.pathname + "/api/data"
+            );
+            const data = await response.json();
+            visualizationDiv.textContent = data.text;
+          } catch (error) {
+            visualizationDiv.textContent =
+              "Error fetching data: " + error.message;
+          }
+        });
+
+      // Load data on page load
+      window.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("fetchBtn").click();
+      });
+    </script>
+  </body>
+</html>
