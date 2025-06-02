@@ -1,5 +1,5 @@
-name: BMI calculator
-description: Calculates BMI
+name: Slurm User Monitor
+description: Tools to montor jobs and usage on the cluster
 icon: fa://hdd-o
 +category: Applications
 +subcategory: Utilities
