@@ -1,5 +1,5 @@
 import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
-
+import axios from "axios";
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
@@ -181,24 +181,39 @@ const mockQuotas: Array<Quota> = [
 // API mock functions
 export const fetchCurrentJobs = async (): Promise<Array<RunningJob>> => {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockCurrentJobs);
-    }, MOCK_DELAY);
+    axios
+      .get("/api/running_jobs")
+      .then((response) => {
+        resolve(response.data as Array<RunningJob>);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   });
 };
 
 export const fetchJobHistory = async (): Promise<Array<FinishedJob>> => {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockJobHistory);
-    }, MOCK_DELAY);
+    axios
+      .get("/api/finished_jobs")
+      .then((response) => {
+        resolve(response.data as Array<FinishedJob>);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   });
 };
 
 export const fetchQuotas = async (): Promise<Array<Quota>> => {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockQuotas);
-    }, MOCK_DELAY);
+    axios
+      .get("/api/quotas")
+      .then((response) => {
+        resolve(response.data as Array<Quota>);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   });
 };
