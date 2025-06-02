@@ -1,5 +1,6 @@
 import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
 import axios from "axios";
+const mock_server = false;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
@@ -181,39 +182,57 @@ const mockQuotas: Array<Quota> = [
 // API mock functions
 export const fetchCurrentJobs = async (): Promise<Array<RunningJob>> => {
   return new Promise((resolve) => {
-    axios
-      .get("/api/running_jobs")
-      .then((response) => {
-        resolve(response.data as Array<RunningJob>);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+    if (mock_server) {
+      setTimeout(() => {
+        resolve(mockCurrentJobs);
+      }, MOCK_DELAY);
+    } else {
+      axios
+        .get("/api/running_jobs")
+        .then((response) => {
+          resolve(response.data as Array<RunningJob>);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
   });
 };
 
 export const fetchJobHistory = async (): Promise<Array<FinishedJob>> => {
   return new Promise((resolve) => {
-    axios
-      .get("/api/finished_jobs")
-      .then((response) => {
-        resolve(response.data as Array<FinishedJob>);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+    if (mock_server) {
+      setTimeout(() => {
+        resolve(mockJobHistory);
+      }, MOCK_DELAY);
+    } else {
+      axios
+        .get("/api/finished_jobs")
+        .then((response) => {
+          resolve(response.data as Array<FinishedJob>);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
   });
 };
 
 export const fetchQuotas = async (): Promise<Array<Quota>> => {
   return new Promise((resolve) => {
-    axios
-      .get("/api/quotas")
-      .then((response) => {
-        resolve(response.data as Array<Quota>);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+    if (mock_server) {
+      setTimeout(() => {
+        resolve(mockQuotas);
+      }, MOCK_DELAY);
+    } else {
+      axios
+        .get("/api/quotas")
+        .then((response) => {
+          resolve(response.data as Array<Quota>);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
   });
 };
