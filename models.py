@@ -20,7 +20,7 @@ class Job(BaseModel):
     nodes: Optional[int] = None
     status: str
     startTime: datetime
-    endTime: Optional[datetime] = None
+    endTime: Optional[datetime | str] = None
     resources: Resources
 
 

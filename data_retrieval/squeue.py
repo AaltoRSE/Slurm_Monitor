@@ -9,7 +9,7 @@ class SQUEUE:
         job_data = parse_squeue_output()
         self.pending_data = {
             job["ID"].split("_")[0]: {
-                "start": job["Start"],
+                "start": int(job["Start"]),
                 "nodes": job["Nodes"],
                 "state": job["State"],
             }
@@ -18,7 +18,7 @@ class SQUEUE:
         }
         self.running_data = {
             job["ID"].split("_")[0]: {
-                "start": job["Start"],
+                "start": int(job["Start"]),
                 "nodes": job["NodeList"],
                 "state": job["State"],
             }
