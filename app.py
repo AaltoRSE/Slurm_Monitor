@@ -1,9 +1,15 @@
-from flask import Flask, send_from_directory, jsonify
-import subprocess
-import data_retrieval.data_retrieval as data_retrieval
-from data_retrieval import quotas
+import sys
+import os
 
-monitor_app = Flask("User Monitor", static_folder="frontend/dist", static_url_path="")
+# Necessary for relative file loading
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from flask import Flask, send_from_directory, jsonify
+from data_retrieval import data_retrieval, quotas
+
+monitor_app = Flask(
+    "Example OOD app", static_folder="frontend/dist", static_url_path=""
+)
 
 
 # Serve the Vue.js frontend
@@ -30,7 +36,6 @@ def get_quotas():
 # Serve other static files (e.g., JS, CSS)
 @monitor_app.route("/<path:path>")
 def serve_static_files(path):
-    path = path.replace("..", "")
     return send_from_directory(monitor_app.static_folder, path)
 
 

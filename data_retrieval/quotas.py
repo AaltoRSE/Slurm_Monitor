@@ -2,11 +2,15 @@ import re
 import os
 from typing import List
 from data_retrieval.utils import run_command
-from models import Quota
+from models.models import Quota
 
-user_quotas = r"/*\/(?P<name>\w+) +(\(user qta\) +)?(?P<used>\d+\w) +(?P<total>\d+\w) +(\d+\w)[ -]+(?P<used_files>\d+\w?) +(?P<files>\d+\w?) +(\d+\w?) +/"
+user_quotas = re.compile(
+    r" *\/(?P<name>\w+) +(\(user qta\) +)?(?P<used>\d+\w) +(?P<available>\d+\w) +(\d+\w)[ -]+(?P<used_files>\d+\w?) +(?P<files>\d+\w?) +(\d+\w?) +"
+)
 
-group_quotas = r"/ *\/(\w+) +(?P<name>\w+) +(?P<used>\d+\w) +(?P<available>\d+\w) +(\d+\w)[ -]+(?P<used_files>\d+\w?) +(?P<files>\d+\w?) +(\d+\w?) +/"
+group_quotas = re.compile(
+    r" *\/(\w+) +(?P<name>\w+) +(?P<used>\d+\w) +(?P<available>\d+\w) +(\d+\w)[ -]+(?P<used_files>\d+\w?) +(?P<files>\d+\w?) +(\d+\w?) +"
+)
 
 
 def parse_file_count(filecount: str):
@@ -51,14 +55,16 @@ def get_quotas() -> List[Quota]:
     Returns:
         List[Tuple[str, str]]: A list of tuples containing (Scheduled Nodes, Expected Start Time).
     """
-    output = run_command("quota")
+    output = run_command("/usr/local/bin/quota")
     results = []
     lines = output.strip().split("\n")
     username = os.environ.get("USER")
+
     for line in lines[1:]:
         # Match the expected format
         home_match = re.search(user_quotas, line)
-        if home_match:
+        if not home_match is None:
+            print(home_match)
             group_dict = home_match.groupdict()
             if group_dict["name"] == "home":
                 results.append(
@@ -73,8 +79,8 @@ def get_quotas() -> List[Quota]:
                     )
                 )
         group_match = re.search(group_quotas, line)
-        if group_match:
-            group_dict = home_match.groupdict()
+        if not group_match is None:
+            group_dict = group_match.groupdict()
             if group_dict["name"] != username:
                 results.append(
                     convert_quota_dict_to_quota(

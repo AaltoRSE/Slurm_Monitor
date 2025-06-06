@@ -6,7 +6,14 @@ from typing import List
 import sqlite3
 import threading
 from datetime import datetime, timedelta
-from models import Job, RunningJob, FinishedJob, Resources, GPUResources, JobEfficiency
+from models.models import (
+    Job,
+    RunningJob,
+    FinishedJob,
+    Resources,
+    GPUResources,
+    JobEfficiency,
+)
 from data_retrieval.squeue import SQUEUE
 
 db = None
@@ -23,16 +30,19 @@ def fetch_jobs() -> List[Job]:
     with lock:
         if db is None or datetime.now() - db_time > timedelta(seconds=15):
             db = sqlite3.connect(":memory:")
-            slurm2sql.slurm2sql(db, ["-S", "now-2weeks", "-u", "bjorkmz1"], update=True)
+            slurm2sql.slurm2sql(
+                db, ["-S", "now-2weeks", "-u", os.environ.get("USER")], update=True
+            )
             db_time = datetime.now()
             queue = SQUEUE()
             jobs = db.cursor().execute(
-                "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING')"
+                "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
-            headers = extractHeader(current_jobs.description)
+
+            headers = extractHeader(jobs.description)
             current_jobs = [
-                convert_DB_to_Job(DBJob(result, headers, queue), True)
-                for result in current_jobs
+                convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
+                for result in jobs
             ]
 
 
@@ -87,40 +97,43 @@ class DBJob:
             return None
 
 
-def convert_DB_to_Job(db_job: DBJob, running: bool, queue: SQUEUE):
+def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
 
     id = db_job.get("JobID")
-    print(id)
+    print(f"ID: {id}")
     name = db_job.get("JobName")
-    print(id)
     commands = db_job.get("SubmitLines")
     if commands is None:
         commands = ["Unknown"]
     else:
         commands = db_job.get("SubmitLines").split("\n")
-    print(commands)
+    print(f"Commands: {commands}")
     status = db_job.get("State")
-    print(status)
-    time = db_job.get("TimeLimit")
-    try:
-        t = datetime.strptime(time, "%d-%H:%M:%S")
-    except:
-        t = datetime.strptime(time, "%H:%M:%S")
-    # ...and use datetime's hour, min and sec properties to build a timedelta
-    delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
-
-    print(time)
+    running = status == "PENDING" or status == "RUNNING"
+    print(f" State: {status}")
+    time = db_job.get("Timelimit")
+    print(f" Timelimit: {time}")
+    delta = None
+    if not time is None:
+        try:
+            t = datetime.strptime(time, "%d-%H:%M:%S")
+        except:
+            t = datetime.strptime(time, "%H:%M:%S")
+        delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
     startTime = db_job.get("Start")
+    print(f" Start: {startTime}")
     if startTime is None:
         startTime = datetime.fromisoformat(queue.get_start_time(id))
     else:
-        startTime = datetime.fromtimestamp(startTime)
-    print(startTime)
+        startTime = datetime.fromtimestamp(int(startTime))
     endTime = db_job.get("End")
     if endTime is None:
         if not startTime is None:
-            endTime = startTime + timedelta(time)
-    print(endTime)
+            if delta is None:
+                endtime = "unknown"
+            else:
+                endTime = startTime + delta
+    print(f" End: {endTime}")
     cpus = db_job.get("NCPUS", int)
     print(cpus)
     memory = db_job.get("MemReq", int)
@@ -156,7 +169,8 @@ def convert_DB_to_Job(db_job: DBJob, running: bool, queue: SQUEUE):
         )
     else:
         efficieny = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff)
-        return FinishedJob(
+        print(efficieny)
+        job = FinishedJob(
             id=id,
             status=status,
             name=name,
@@ -164,6 +178,7 @@ def convert_DB_to_Job(db_job: DBJob, running: bool, queue: SQUEUE):
             startTime=startTime,
             endTime=endTime,
             resources=res,
-            efficieny=efficieny,
+            efficiency=efficieny,
             command=commands[0],
         )
+        return job
