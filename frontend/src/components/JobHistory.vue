@@ -135,6 +135,7 @@ import EfficiencyBar from "./EfficiencyBar.vue";
 import { Button, Popover } from "primevue";
 import JobCard from "./JobCard.vue";
 import type { RunningJob, FinishedJob } from "@/lib/types";
+import { formatDateTime, getStatusSeverity } from "@/lib/utils";
 const selectedJob = ref<FinishedJob | RunningJob | null>(null);
 const keepDisplay = ref(false);
 const JobDetails = ref();
@@ -224,30 +225,5 @@ const toggleJobDetails = (event: any, jobData: FinishedJob) => {
       JobDetails.value.show(event);
     });
   }
-};
-
-const getStatusSeverity = (status: string) => {
-  switch (status) {
-    case "running":
-      return "success";
-    case "queued":
-      return "info";
-    case "completed":
-      return "success";
-    case "failed":
-      return "danger";
-    default:
-      return "warning";
-  }
-};
-
-const formatDateTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
 };
 </script>

@@ -93,60 +93,12 @@
 import Tag from "primevue/tag";
 import ProgressBar from "primevue/progressbar";
 import type { FinishedJob, RunningJob } from "@/lib/types";
+import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
 
 // Props
 defineProps<{
   job: RunningJob | FinishedJob;
 }>();
-
-// Utility functions
-const getStatusSeverity = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "running":
-      return "success";
-    case "queued":
-      return "info";
-    case "completed":
-      return "success";
-    case "cancelled":
-      return "warning";
-    case "failed":
-      return "danger";
-    default:
-      return "secondary";
-  }
-};
-
-const isJobFinished = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "running":
-      return false;
-    case "queued":
-      return false;
-    case "completed":
-      return true;
-    case "cancelled":
-      return true;
-    case "failed":
-      return true;
-    default:
-      return true;
-  }
-};
-
-const formatDateTime = (dateString: string) => {
-  try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  } catch (e) {
-    return "Invalid date";
-  }
-};
 </script>
 
 <style scoped>

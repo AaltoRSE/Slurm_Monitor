@@ -102,6 +102,7 @@ import Tag from "primevue/tag";
 import { Button, Popover } from "primevue";
 import ProgressSpinner from "primevue/progressspinner";
 import JobCard from "./JobCard.vue";
+import { formatDateTime, getStatusSeverity } from "@/lib/utils";
 
 defineProps({
   jobs: {
@@ -185,30 +186,5 @@ const toggleJobDetails = (event: any, jobData: RunningJob) => {
       JobDetails.value.show(event);
     });
   }
-};
-
-const getStatusSeverity = (status: string) => {
-  switch (status) {
-    case "running":
-      return "success";
-    case "queued":
-      return "info";
-    case "completed":
-      return "success";
-    case "failed":
-      return "danger";
-    default:
-      return "warning";
-  }
-};
-
-const formatDateTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
 };
 </script>

@@ -7,6 +7,7 @@
 
           <div>
             <Button
+              v-tooltip="showHistory ? 'Expand details' : 'Minimize details'"
               :icon="
                 showJobs ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
               "
@@ -31,6 +32,7 @@
           <div>Job History</div>
           <div>
             <Button
+              v-tooltip="showHistory ? 'Expand details' : 'Minimize details'"
               :icon="
                 showHistory ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
               "
