@@ -135,6 +135,8 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
                 endTime = "unknown"
             else:
                 endTime = startTime + delta
+    else:
+        endTime = datetime.fromtimestamp(int(endTime))
     # print(f" End: {endTime}")
     cpus = db_job.get("NCPUS", int)
     # print(cpus)
