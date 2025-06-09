@@ -66,7 +66,8 @@
         <template #body="slotProps">
           <EfficiencyBar
             v-if="
-              slotProps.data.efficiency && slotProps.data.resources.gpu !== null
+              slotProps.data.efficiency &&
+              slotProps.data.efficiency.cpu !== null
             "
             :value="slotProps.data.efficiency.cpu"
           />
@@ -90,10 +91,7 @@
       <Column v-if="full" header="GPU Usage" style="min-width: 10rem">
         <template #body="slotProps">
           <EfficiencyBar
-            v-if="
-              slotProps.data.efficiency.gpu ||
-              slotProps.data.efficiency.gpu == 0
-            "
+            v-if="slotProps.data.resources.gpu == null"
             :value="slotProps.data.efficiency.gpu"
           />
           <span v-else>N/A</span>
