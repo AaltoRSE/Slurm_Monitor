@@ -81,6 +81,8 @@ def get_quotas() -> List[Quota]:
         group_match = re.search(group_quotas, line)
         if not group_match is None:
             group_dict = group_match.groupdict()
+        if not group_match is None:
+            group_dict = group_match.groupdict()
             if group_dict["name"] != username:
                 results.append(
                     convert_quota_dict_to_quota(

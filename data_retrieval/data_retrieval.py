@@ -37,10 +37,15 @@ def fetch_jobs() -> List[Job]:
             queue = SQUEUE()
             jobs = db.cursor().execute(
                 "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
+                "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
 
             headers = extractHeader(jobs.description)
+
+            headers = extractHeader(jobs.description)
             current_jobs = [
+                convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
+                for result in jobs
                 convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
                 for result in jobs
             ]
@@ -108,6 +113,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
     else:
         commands = db_job.get("SubmitLines").split("\n")
     print(f"Commands: {commands}")
+    print(f"Commands: {commands}")
     status = db_job.get("State")
     running = status == "PENDING" or status == "RUNNING"
     print(f" State: {status}")
@@ -122,6 +128,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
         delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
     startTime = db_job.get("Start")
     print(f" Start: {startTime}")
+    print(f" Start: {startTime}")
     if startTime is None:
         startTime = datetime.fromisoformat(queue.get_start_time(id))
     else:
@@ -129,6 +136,11 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
     endTime = db_job.get("End")
     if endTime is None:
         if not startTime is None:
+            if delta is None:
+                endtime = "unknown"
+            else:
+                endTime = startTime + delta
+    print(f" End: {endTime}")
             if delta is None:
                 endtime = "unknown"
             else:
@@ -171,6 +183,8 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
         efficieny = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff)
         print(efficieny)
         job = FinishedJob(
+        print(efficieny)
+        job = FinishedJob(
             id=id,
             status=status,
             name=name,
@@ -179,6 +193,8 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
             endTime=endTime,
             resources=res,
             efficiency=efficieny,
+            efficiency=efficieny,
             command=commands[0],
         )
+        return job
         return job
