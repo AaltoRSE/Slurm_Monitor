@@ -6,7 +6,14 @@ from typing import List
 import sqlite3
 import threading
 from datetime import datetime, timedelta
-from models import Job, RunningJob, FinishedJob, Resources, GPUResources, JobEfficiency
+from models.models import (
+    Job,
+    RunningJob,
+    FinishedJob,
+    Resources,
+    GPUResources,
+    JobEfficiency,
+)
 from data_retrieval.squeue import SQUEUE
 
 db = None
@@ -23,12 +30,17 @@ def fetch_jobs() -> List[Job]:
     with lock:
         if db is None or datetime.now() - db_time > timedelta(seconds=15):
             db = sqlite3.connect(":memory:")
-            slurm2sql.slurm2sql(db, ["-S", "now-2weeks", "-u", os.environ.get("USER")], update=True)
+            slurm2sql.slurm2sql(
+                db, ["-S", "now-2weeks", "-u", os.environ.get("USER")], update=True
+            )
             db_time = datetime.now()
             queue = SQUEUE()
             jobs = db.cursor().execute(
                 "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
+                "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
+
+            headers = extractHeader(jobs.description)
 
             headers = extractHeader(jobs.description)
             current_jobs = [
@@ -75,8 +87,8 @@ def extractHeader(db_headers):
 
 class DBJob:
     def __init__(self, db_result, headers):
-        print(headers)
-        print(db_result)
+        # print(headers)
+        # print(db_result)
         self.headers = headers
         self.result = db_result
 
@@ -91,52 +103,54 @@ class DBJob:
 def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
 
     id = db_job.get("JobID")
-    print(f"ID: {id}")
-    name = db_job.get("JobName")    
+    # print(f"ID: {id}")
+    name = db_job.get("JobName")
     commands = db_job.get("SubmitLines")
     if commands is None:
         commands = ["Unknown"]
     else:
         commands = db_job.get("SubmitLines").split("\n")
-    print(f"Commands: {commands}")
+    # print(f"Commands: {commands}")
+    # print(f"Commands: {commands}")
     status = db_job.get("State")
-    running = (status == "PENDING" or status == "RUNNING")
-    print(f" State: {status}")
+    running = status == "PENDING" or status == "RUNNING"
+    # print(f" State: {status}")
     time = db_job.get("Timelimit")
-    print(f" Timelimit: {time}")
+    # print(f" Timelimit: {time}")
     delta = None
     if not time is None:
         try:
             t = datetime.strptime(time, "%d-%H:%M:%S")
-        except:            
+        except:
             t = datetime.strptime(time, "%H:%M:%S")
-        delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)    
+        delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
     startTime = db_job.get("Start")
-    print(f" Start: {startTime}")
+    # print(f" Start: {startTime}")
+    # print(f" Start: {startTime}")
     if startTime is None:
         startTime = datetime.fromisoformat(queue.get_start_time(id))
     else:
-        startTime = datetime.fromtimestamp(int(startTime))            
+        startTime = datetime.fromtimestamp(int(startTime))
     endTime = db_job.get("End")
     if endTime is None:
         if not startTime is None:
             if delta is None:
-                endtime = "unknown"
+                endTime = "unknown"
             else:
                 endTime = startTime + delta
-    print(f" End: {endTime}")
+    # print(f" End: {endTime}")
     cpus = db_job.get("NCPUS", int)
-    print(cpus)
+    # print(cpus)
     memory = db_job.get("MemReq", int)
-    print(memory)
+    # print(memory)
     gpus = db_job.get("NGpus", int)
-    print(gpus)
+    # print(gpus)
     nodes = db_job.get("NNodes", int)
-    print(nodes)
+    # print(nodes)
     nodeList = db_job.get("NodeList")
-    print(nodeList)
+    # print(nodeList)
     gpu_type = db_job.get("GPUType")
-    print(gpu_type)
+    # print(gpu_type)
     gpu_eff = db_job.get("GPUeff", float)
     cpu_eff = db_job.get("CPUeff", float)
     mem_eff = db_job.get("MemEff", float)
@@ -160,7 +174,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
         )
     else:
         efficieny = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff)
-        print(efficieny)
+        # print(efficieny)
         job = FinishedJob(
             id=id,
             status=status,
@@ -169,6 +183,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
             startTime=startTime,
             endTime=endTime,
             resources=res,
+            efficiency=efficieny,
             efficiency=efficieny,
             command=commands[0],
         )
