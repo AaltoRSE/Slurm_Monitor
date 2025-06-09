@@ -16,7 +16,7 @@
       :style="{
         color: getColorForValue(value),
       }"
-      >{{ value }}%</span
+      >{{ formatNumber(value) }}%</span
     >
   </div>
 </template>
@@ -35,6 +35,12 @@ export default {
       if (value < 30) return "var(--p-red-500)"; // Low efficiency - red
       if (value < 70) return "var(--p-orange-500)"; // Medium efficiency - amber
       return "var(--p-emerald-600)"; // High efficiency - green
+    },
+    formatNumber(value: number) {
+      return new Intl.NumberFormat(navigator.language, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }).format(value);
     },
   },
   template: "#internal",
