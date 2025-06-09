@@ -66,8 +66,7 @@
         <template #body="slotProps">
           <EfficiencyBar
             v-if="
-              slotProps.data.efficiency &&
-              slotProps.data.efficiency.cpu !== null
+              slotProps.data.efficiency && slotProps.data.resources.gpu !== null
             "
             :value="slotProps.data.efficiency.cpu"
           />

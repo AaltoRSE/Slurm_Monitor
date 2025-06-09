@@ -13,7 +13,7 @@
           <i class="pi pi-calendar mr-2"></i>
           <span class="font-semibold">Start:</span>
           {{ formatDateTime(job.startTime) }}
-          <span v-if="job.status === 'queued'" class="text-xs text-500"
+          <span v-if="!isJobFinished(job.status)" class="text-xs text-500"
             >(Projected)</span
           >
         </div>
@@ -22,7 +22,7 @@
           <span class="font-semibold">End:</span>
           {{ formatDateTime(job.endTime) }}
           <span class="text-xs text-500">{{
-            job.status === "completed" ? "" : "(Projected)"
+            isJobFinished(job.status) ? "" : "(Projected)"
           }}</span>
         </div>
       </div>
@@ -65,7 +65,7 @@
             />
           </div>
           <div
-            v-if="(job as FinishedJob).efficiency.gpu !== undefined"
+            v-if="(job as FinishedJob).resources.gpu !== undefined"
             class="mb-2"
           >
             <span class="font-semibold mr-2">GPU:</span>
@@ -114,6 +114,23 @@ const getStatusSeverity = (status: string) => {
       return "danger";
     default:
       return "secondary";
+  }
+};
+
+const isJobFinished = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "running":
+      return false;
+    case "queued":
+      return false;
+    case "completed":
+      return true;
+    case "cancelled":
+      return true;
+    case "failed":
+      return true;
+    default:
+      return true;
   }
 };
 

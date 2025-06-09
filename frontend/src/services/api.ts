@@ -1,6 +1,6 @@
 import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
 import axios, { type AxiosResponse } from "axios";
-const mock_server = false;
+const mock_server = true;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
@@ -159,7 +159,7 @@ const mockQuotas: Array<Quota> = [
     path: "/home/user.name",
     used: 185000000,
     total: 500000000000,
-    files: 123000,
+    files: 0,
     used_files: 110000,
   },
   {

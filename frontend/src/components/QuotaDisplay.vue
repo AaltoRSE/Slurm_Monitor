@@ -41,24 +41,26 @@
               {{ getPercentage(quota) }}%
             </span>
           </div>
-          Files:
-          <div class="quota-meter mb-2">
-            <ProgressBar
-              :value="getFilePercentage(quota)"
-              :class="getProgressBarClass(getFilePercentage(quota))"
-            />
-          </div>
-          <div class="quota-details flex justify-content-between">
-            <span class="text-sm">
-              {{ formatValue(quota.used_files).slice(0, -1) }} /
-              {{ formatValue(quota.files).slice(0, -1) }}
-            </span>
-            <span
-              class="text-sm font-bold"
-              :class="getTextColorClass(getFilePercentage(quota))"
-            >
-              {{ getFilePercentage(quota) }}%
-            </span>
+          <div v-if="quota.files > 0">
+            Files:
+            <div class="quota-meter mb-2">
+              <ProgressBar
+                :value="getFilePercentage(quota)"
+                :class="getProgressBarClass(getFilePercentage(quota))"
+              />
+            </div>
+            <div class="quota-details flex justify-content-between">
+              <span class="text-sm">
+                {{ formatValue(quota.used_files).slice(0, -1) }} /
+                {{ formatValue(quota.files).slice(0, -1) }}
+              </span>
+              <span
+                class="text-sm font-bold"
+                :class="getTextColorClass(getFilePercentage(quota))"
+              >
+                {{ getFilePercentage(quota) }}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
