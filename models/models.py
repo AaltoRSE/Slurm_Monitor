@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, Union
 from datetime import datetime
 
 
@@ -20,7 +20,7 @@ class Job(BaseModel):
     nodes: Optional[int] = None
     status: str
     startTime: datetime
-    endTime: Optional[datetime | str] = None
+    endTime: Optional[Union[datetime, str]] = None
     resources: Resources
 
 
