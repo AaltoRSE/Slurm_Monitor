@@ -10,8 +10,7 @@ dotenv.config();
 const currentDir = dirname(fileURLToPath(import.meta.url)); // Current directory
 const parentDir = basename(dirname(currentDir)); // Parent's parent directory
 
-process.env.VITE_BASE_URL =
-  process.env.VITE_BASE_URL || `/pun/dev/${parentDir}`;
+process.env.VITE_BASE_URL = process.env.VITE_BASE_URL || `./`;
 
 // https://vite.dev/config/
 export default defineConfig({
