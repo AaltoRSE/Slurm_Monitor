@@ -37,7 +37,6 @@ def fetch_jobs() -> List[Job]:
             queue = SQUEUE()
             jobs = db.cursor().execute(
                 "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
-                "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
 
             headers = extractHeader(jobs.description)
