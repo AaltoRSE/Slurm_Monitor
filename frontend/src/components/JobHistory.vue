@@ -91,7 +91,7 @@
       <Column v-if="full" header="GPU Usage" style="min-width: 10rem">
         <template #body="slotProps">
           <EfficiencyBar
-            v-if="slotProps.data.resources.gpu == null"
+            v-if="slotProps.data.resources.gpu"
             :value="slotProps.data.efficiency.gpu"
           />
           <span v-else>N/A</span>

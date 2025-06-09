@@ -124,7 +124,7 @@ const mockJobHistory: Array<FinishedJob> = [
     efficiency: {
       cpu: 92,
       memory: 85,
-      gpu: 97,
+      gpu: 5,
     },
   },
   {
@@ -146,7 +146,7 @@ const mockJobHistory: Array<FinishedJob> = [
     command: "python train.py --epochs 100 --batch-size 32",
     efficiency: {
       cpu: 88,
-      memory: 45,
+      memory: 10,
       gpu: 33,
     },
   },

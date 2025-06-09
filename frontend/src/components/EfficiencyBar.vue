@@ -1,13 +1,23 @@
 <template>
-  <div class="efficiency-bar">
+  <div
+    class="efficiency-bar"
+    :style="{
+      backgroundColor: '#FFFFFF',
+    }"
+  >
     <div
       class="efficiency-bar-fill"
       :style="{
         width: `${value}%`,
-        backgroundColor: getColorForValue(value),
       }"
     ></div>
-    <span class="efficiency-bar-label">{{ value }}%</span>
+    <span
+      class="efficiency-bar-label"
+      :style="{
+        color: getColorForValue(value),
+      }"
+      >{{ value }}%</span
+    >
   </div>
 </template>
 
@@ -22,9 +32,9 @@ export default {
   },
   methods: {
     getColorForValue(value: number) {
-      if (value < 30) return "#ef4444"; // Low efficiency - red
-      if (value < 70) return "#f59e0b"; // Medium efficiency - amber
-      return "#22c55e"; // High efficiency - green
+      if (value < 30) return "var(--p-red-500)"; // Low efficiency - red
+      if (value < 70) return "var(--p-orange-500)"; // Medium efficiency - amber
+      return "var(--p-emerald-600)"; // High efficiency - green
     },
   },
   template: "#internal",
@@ -36,14 +46,17 @@ export default {
   position: relative;
   width: 100%;
   height: 24px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
+  border-style: solid;
+  border-color: var(--p-primary-100);
+  border-width: 2px;
 }
 
 .efficiency-bar-fill {
   height: 100%;
   border-radius: 4px;
+  background-color: var(--p-primary-100);
   transition: width 0.5s ease;
 }
 
@@ -53,8 +66,8 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   color: #000;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: bold;
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
 }
 </style>

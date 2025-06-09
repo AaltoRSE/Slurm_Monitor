@@ -50,30 +50,18 @@
           <div class="text-lg font-medium mb-2">Resource Efficiency</div>
           <div class="mb-2">
             <span class="font-semibold mr-2">CPU:</span>
-            <ProgressBar
-              :value="(job as FinishedJob).efficiency.cpu"
-              :showValue="true"
-              class="h-1rem"
-            />
+            <EfficiencyBar :value="(job as FinishedJob).efficiency.cpu" />
           </div>
           <div class="mb-2">
             <span class="font-semibold mr-2">Memory:</span>
-            <ProgressBar
-              :value="(job as FinishedJob).efficiency.memory"
-              :showValue="true"
-              class="h-1rem"
-            />
+            <EfficiencyBar :value="(job as FinishedJob).efficiency.memory" />
           </div>
           <div
-            v-if="(job as FinishedJob).resources.gpu !== undefined"
+            v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu"
             class="mb-2"
           >
             <span class="font-semibold mr-2">GPU:</span>
-            <ProgressBar
-              :value="(job as FinishedJob).efficiency.gpu"
-              :showValue="true"
-              class="h-1rem"
-            />
+            <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
           </div>
         </div>
       </div>
@@ -91,9 +79,9 @@
 
 <script setup lang="ts">
 import Tag from "primevue/tag";
-import ProgressBar from "primevue/progressbar";
 import type { FinishedJob, RunningJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
+import EfficiencyBar from "./EfficiencyBar.vue";
 
 // Props
 defineProps<{
