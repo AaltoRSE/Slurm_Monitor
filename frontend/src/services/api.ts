@@ -4,6 +4,7 @@ const mock_server = false;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
+const base_url = import.meta.env.VITE_BASE_URL;
 // Mock current jobs data
 const mockCurrentJobs: Array<RunningJob> = [
   {
@@ -188,7 +189,7 @@ export const fetchCurrentJobs = async (): Promise<Array<RunningJob>> => {
       }, MOCK_DELAY);
     } else {
       axios
-        .get("monitor_test/api/running_jobs")
+        .get(`${base_url}/api/running_jobs`)
         .then((response: AxiosResponse) => {
           resolve(response.data as Array<RunningJob>);
         })
@@ -207,7 +208,7 @@ export const fetchJobHistory = async (): Promise<Array<FinishedJob>> => {
       }, MOCK_DELAY);
     } else {
       axios
-        .get("monitor_test/api/finished_jobs")
+        .get(`${base_url}/api/finished_jobs`)
         .then((response: AxiosResponse) => {
           resolve(response.data as Array<FinishedJob>);
         })
@@ -226,7 +227,7 @@ export const fetchQuotas = async (): Promise<Array<Quota>> => {
       }, MOCK_DELAY);
     } else {
       axios
-        .get("monitor_test/api/quotas")
+        .get(`${base_url}/api/quotas`)
         .then((response: AxiosResponse) => {
           resolve(response.data as Array<Quota>);
         })
