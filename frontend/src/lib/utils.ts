@@ -27,6 +27,23 @@ export const formatDateTime = (dateString: string) => {
   }
 };
 
+export const isJobStarted = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "running":
+      return true;
+    case "queued":
+      return false;
+    case "completed":
+      return true;
+    case "cancelled":
+      return true;
+    case "failed":
+      return true;
+    default:
+      return true;
+  }
+};
+
 export const isJobFinished = (status: string) => {
   switch (status.toLowerCase()) {
     case "running":

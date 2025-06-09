@@ -49,7 +49,7 @@
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.startTime) }}
           <span
-            v-if="slotProps.data.status === 'queued'"
+            v-if="isJobStarted(slotProps.data.status)"
             class="text-xs text-gray-500"
             >(Projected)</span
           >
@@ -102,7 +102,7 @@ import Tag from "primevue/tag";
 import { Button, Popover } from "primevue";
 import ProgressSpinner from "primevue/progressspinner";
 import JobCard from "./JobCard.vue";
-import { formatDateTime, getStatusSeverity } from "@/lib/utils";
+import { formatDateTime, getStatusSeverity, isJobStarted } from "@/lib/utils";
 
 defineProps({
   jobs: {
