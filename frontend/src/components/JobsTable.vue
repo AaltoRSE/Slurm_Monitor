@@ -49,7 +49,7 @@
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.startTime) }}
           <span
-            v-if="isJobStarted(slotProps.data.status)"
+            v-if="!isJobStarted(slotProps.data.status)"
             class="text-xs text-gray-500"
             >(Projected)</span
           >
