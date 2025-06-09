@@ -22,6 +22,7 @@ class Job(BaseModel):
     startTime: datetime
     endTime: Optional[Union[datetime, str]] = None
     resources: Resources
+    command: str
 
 
 class RunningJob(Job):
