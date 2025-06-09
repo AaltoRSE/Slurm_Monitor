@@ -41,8 +41,6 @@ def fetch_jobs() -> List[Job]:
             )
 
             headers = extractHeader(jobs.description)
-
-            headers = extractHeader(jobs.description)
             current_jobs = [
                 convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
                 for result in jobs
@@ -173,7 +171,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
             command=commands[0],
         )
     else:
-        efficieny = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff)
+        efficiency = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff)
         # print(efficieny)
         job = FinishedJob(
             id=id,
@@ -183,8 +181,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
             startTime=startTime,
             endTime=endTime,
             resources=res,
-            efficiency=efficieny,
-            efficiency=efficieny,
+            efficiency=efficiency,
             command=commands[0],
         )
         return job
