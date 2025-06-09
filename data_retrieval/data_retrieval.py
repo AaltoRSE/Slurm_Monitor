@@ -150,9 +150,9 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
     # print(nodeList)
     gpu_type = db_job.get("GPUType")
     # print(gpu_type)
-    gpu_eff = db_job.get("GPUeff", float)
-    cpu_eff = db_job.get("CPUeff", float)
-    mem_eff = db_job.get("MemEff", float)
+    gpu_eff = db_job.get("GPUeff", float) * 100
+    cpu_eff = db_job.get("CPUeff", float) * 100
+    mem_eff = db_job.get("MemEff", float) * 100
     alloc_nodes, expected_nodes = queue.get_nodes(id)
     used_nodes = expected_nodes if status == "PENDING" else alloc_nodes
     if used_nodes == None:
