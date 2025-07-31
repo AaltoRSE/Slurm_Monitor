@@ -21,7 +21,7 @@ def parse_file_count(filecount: str):
 
 
 def parse_storage(storage_string):
-    conversion_factors = {"K": 1e3, "M": 2e6, "G": 1e9, "T": 1e12}
+    conversion_factors = {"K": 1e3, "M": 1e6, "G": 1e9, "T": 1e12}
     suffix = storage_string[-1]
     try:
         factor = conversion_factors[suffix]
