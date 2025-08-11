@@ -47,8 +47,8 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(PrimeVue, { theme: { preset: stylePreset }, ripple: true });
 
-import "./index.css";
 import { definePreset } from "@primeuix/themes";
+import "./index.css";
 
 app.use(ToastService);
 

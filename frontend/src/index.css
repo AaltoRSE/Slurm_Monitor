@@ -1,7 +1,3 @@
 /* Import PrimeVue theme */
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.css";
-
-:root {
-  --p-primary-color: #5f341d;
-}
