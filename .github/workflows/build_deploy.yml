@@ -1,0 +1,42 @@
+name: Build and Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow when changes are pushed to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Specify the Node.js version
+          cache: 'npm' # Cache npm dependencies
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      # Step 4: Build the frontend
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # Step 5: Push build to deploy branch
+      - name: Deploy to deploy branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b deploy
+          git add -f frontend/dist
+          git commit -m "Deploy frontend build"
+          git push origin deploy --force
