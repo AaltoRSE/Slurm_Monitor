@@ -38,7 +38,6 @@ def fetch_jobs() -> List[Job]:
             jobs = db.cursor().execute(
                 "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
-
             headers = extractHeader(jobs.description)
             current_jobs = [
                 convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
@@ -88,7 +87,6 @@ class DBJob:
         # print(db_result)
         self.headers = headers
         self.result = db_result
-
     def get(self, field, type=str):
         try:
             value = self.result[self.headers[field]]
@@ -165,7 +163,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
         used_nodes = "unknown"
 
     gpu_res = None if gpus is None else GPUResources(amount=gpus, type=gpu_type)
-    res = Resources(cpus=cpus, memory=memory, gpus=gpu_res)
+    res = Resources(cpus=cpus, memory=memory, gpu=gpu_res)
     if running:
         return RunningJob(
             id=id,
