@@ -4,7 +4,7 @@
   >
     <div class="flex align-items-center gap-2">
       <i class="pi pi-server text-xl"></i>
-      <h1 class="text-xl font-bold m-0">Slurm Cluster Status</h1>
+      <h1 class="text-xl font-bold m-0">Triton User Status</h1>
     </div>
     <div></div>
   </header>
