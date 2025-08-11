@@ -1,5 +1,0 @@
-name: frontend-builder
-channels:
-  - conda-forge
-dependencies:
-  - nodejs  
