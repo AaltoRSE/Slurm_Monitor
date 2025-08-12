@@ -1,6 +1,6 @@
 name: Slurm User Monitor
 description: A simple utility to inspect the status for the current user on the cluster
 icon: fas://chart-bar
-+category: Applications
-+subcategory: Utilities
+category: Applications
+subcategory: Utilities
 
