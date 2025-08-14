@@ -28,7 +28,11 @@ def fetch_jobs() -> List[Job]:
     global db, db_time, queue, current_jobs
     # we don't always update.
     with lock:
-        if db is None or datetime.now() - db_time > timedelta(seconds=15):
+        if (
+            db is None
+            or datetime.now() - db_time > timedelta(seconds=15)
+            or current_jobs == None
+        ):
             db = sqlite3.connect(":memory:")
             slurm2sql.slurm2sql(
                 db, ["-S", "now-2weeks", "-u", os.environ.get("USER")], update=True
@@ -146,8 +150,12 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
         endTime = datetime.fromtimestamp(int(endTime))
     # print(f" End: {endTime}")
     cpus = db_job.get("NCPUS", int)
+    if cpus is None:
+        cpus = 0
     # print(cpus)
     memory = db_job.get("MemReq", int)
+    if memory is None:
+        memory = 0
     # print(memory)
     gpus = db_job.get("NGpus", int)
     # print(gpus)

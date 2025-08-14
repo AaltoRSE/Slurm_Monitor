@@ -30,8 +30,8 @@ class RunningJob(Job):
 
 
 class JobEfficiency(BaseModel):
-    cpu: float
-    memory: float
+    cpu: Optional[float] = None
+    memory: Optional[float] = None
     gpu: Optional[float] = None
 
 
