@@ -87,6 +87,7 @@ class DBJob:
         # print(db_result)
         self.headers = headers
         self.result = db_result
+
     def get(self, field, type=str):
         try:
             value = self.result[self.headers[field]]
@@ -117,7 +118,11 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
         try:
             t = datetime.strptime(time, "%d-%H:%M:%S")
         except:
-            t = datetime.strptime(time, "%H:%M:%S")
+            try:
+                t = datetime.strptime(time, "%H:%M:%S")
+            except:
+                t = datetime.min + timedelta(seconds=float(time))
+
         delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
     startTime = db_job.get("Start")
     # print(f" Start: {startTime}")

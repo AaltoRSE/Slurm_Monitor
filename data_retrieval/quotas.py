@@ -13,15 +13,15 @@ group_quotas = re.compile(
 )
 
 
-def parse_file_count(filecount: str):
-    if filecount.endswith("k"):
-        return int(filecount[:-1]) * 1000
-    else:
-        return int(filecount)
+# def parse_file_count(filecount: str):
+#    if filecount.endswith("k"):
+#        return int(filecount[:-1]) * 1000
+#    else:
+#        return int(filecount)
 
 
-def parse_storage(storage_string):
-    conversion_factors = {"K": 1e3, "M": 1e6, "G": 1e9, "T": 1e12}
+def parse_counts(storage_string):
+    conversion_factors = {"K": 1e3, "M": 1e6, "G": 1e9, "T": 1e12, "k": 1e3}
     suffix = storage_string[-1]
     try:
         factor = conversion_factors[suffix]
@@ -38,10 +38,10 @@ def convert_quota_dict_to_quota(quota_dict, path, name):
     return Quota(
         name=name,
         path=path,
-        used=parse_storage(quota_dict["used"]),
-        total=parse_storage(quota_dict["available"]),
-        used_files=parse_file_count(quota_dict["used_files"]),
-        files=parse_file_count(quota_dict["files"]),
+        used=parse_counts(quota_dict["used"]),
+        total=parse_counts(quota_dict["available"]),
+        used_files=parse_counts(quota_dict["used_files"]),
+        files=parse_counts(quota_dict["files"]),
     )
 
 
