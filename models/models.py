@@ -19,7 +19,7 @@ class Job(BaseModel):
     name: str
     nodes: Optional[int] = None
     status: str
-    startTime: datetime
+    startTime: Optional[datetime] = None
     endTime: Optional[Union[datetime, str]] = None
     resources: Resources
     command: str

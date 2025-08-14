@@ -128,7 +128,11 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
     # print(f" Start: {startTime}")
     # print(f" Start: {startTime}")
     if startTime is None:
-        startTime = datetime.fromisoformat(queue.get_start_time(id))
+        queue_start = queue.get_start_time(id)
+        if queue_start == None:
+            startTime = None
+        else:
+            startTime = datetime.fromisoformat(queue.get_start_time(id))
     else:
         startTime = datetime.fromtimestamp(int(startTime))
     endTime = db_job.get("End")
