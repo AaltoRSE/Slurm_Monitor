@@ -13,8 +13,11 @@ export const getStatusSeverity = (status: string) => {
   }
 };
 
-export const formatDateTime = (dateString: string) => {
+export const formatDateTime = (dateString: string | undefined) => {
   try {
+    if (!dateString) {
+      return "Invalid date";
+    }
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
       month: "short",

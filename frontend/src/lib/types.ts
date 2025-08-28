@@ -2,7 +2,7 @@ type Job = {
   id: string;
   name: string;
   status: string;
-  startTime: string;
+  startTime?: string;
   endTime: string;
   nodes: number;
   resources: {

@@ -1,3 +1,7 @@
 /* Import PrimeVue theme */
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.css";
+
+:root {
+  font-family: "Inter", sans-serif;
+}
