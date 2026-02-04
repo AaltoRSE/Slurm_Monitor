@@ -2,3 +2,4 @@ flask
 pywebio
 slurm2sql
 pydantic
+prometheus-api-client

@@ -1,6 +1,6 @@
 import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
 import axios, { type AxiosResponse } from "axios";
-const mock_server = false;
+const mock_server = true;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
@@ -16,7 +16,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     nodes: 1,
     resources: {
       cpus: 4,
-      memory: 32,
+      memory: 209715200,
       gpu: {
         type: "NVIDIA A100",
         amount: 1,
@@ -33,7 +33,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     endTime: new Date(Date.now() + 5400000).toISOString(), // 1.5 hours from now (projected)
     resources: {
       cpus: 12,
-      memory: 24,
+      memory: 25769803776,
     },
     command: "python preprocess.py --input dataset.csv --output processed.pkl",
   },
@@ -46,7 +46,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     endTime: new Date(Date.now() + 14400000).toISOString(), // 4 hours from now
     resources: {
       cpus: 16,
-      memory: 48,
+      memory: 68719476736,
     },
     command: "./assembly --genome bacteria --threads 16 --memory 64G",
   },
@@ -59,7 +59,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     endTime: new Date(Date.now() + 36000000).toISOString(), // 10 hours from now (projected)
     resources: {
       cpus: 8,
-      memory: 32,
+      memory: 34359738368,
       gpu: {
         type: "NVIDIA A100",
         amount: 2,
@@ -80,7 +80,7 @@ const mockJobHistory: Array<FinishedJob> = [
     endTime: new Date(Date.now() - 79200000).toISOString(), // 22 hours ago
     resources: {
       cpus: 4,
-      memory: 12,
+      memory: 12884901888,
     },
     command: "python train.py --epochs 100 --batch-size 32",
     efficiency: {
@@ -93,11 +93,11 @@ const mockJobHistory: Array<FinishedJob> = [
     name: "image_processing",
     status: "failed",
     nodes: 1,
-    startTime: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+    startTime: undefined, // 12 hours ago
     endTime: new Date(Date.now() - 41400000).toISOString(), // 11.5 hours ago
     resources: {
       cpus: 8,
-      memory: 32,
+      memory: 34359738368,
     },
     command: "python train.py --epochs 100 --batch-size 32",
     efficiency: {
@@ -114,7 +114,7 @@ const mockJobHistory: Array<FinishedJob> = [
     endTime: new Date(Date.now() - 18000000).toISOString(), // 5 hours agoresources:
     resources: {
       cpus: 8,
-      memory: 32,
+      memory: 34359738368,
       gpu: {
         type: "NVIDIA A100",
         amount: 2,
@@ -137,7 +137,7 @@ const mockJobHistory: Array<FinishedJob> = [
     endTime: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
     resources: {
       cpus: 8,
-      memory: 32,
+      memory: 34359738368,
       gpu: {
         type: "NVIDIA A100",
         amount: 2,

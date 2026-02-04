@@ -1,11 +1,15 @@
 import os
+from typing import Any, List, Dict, Type
 import subprocess
-import slurm2sql
-from typing import List
-
-import sqlite3
 import threading
 from datetime import datetime, timedelta
+
+import slurm2sql
+import sqlite3
+#from prometheus_api_client import PrometheusConnect
+from prometheus_api_client.prometheus_connect import PrometheusConnect
+
+from data_retrieval.squeue import SQUEUE
 from models.models import (
     Job,
     RunningJob,
@@ -13,18 +17,64 @@ from models.models import (
     Resources,
     GPUResources,
     JobEfficiency,
+    PrometheusVectorResult,
+    PrometheusMatrixResult,
+    VectorResult,
+    TimeStampValue
 )
-from data_retrieval.squeue import SQUEUE
-
 db = None
 db_time = None
 queue = None
-current_jobs = None
+current_jobs = None | List[Job]
 lock = threading.Lock()
+
+#prometheus_server = "http://stats.triton.aalto.fi:9090"
+prometheus_server = "http://localhost:8081"
+prometheus_client = PrometheusConnect(url =prometheus_server, disable_ssl=True)
+
+def fetch_vector_result(query: str, output_type : Type ) -> Dict[int,Any]:
+    """ fetch a vector result from prometheus"""
+    result = PrometheusVectorResult.model_validate(prometheus_client.custom_query(query=query)).to_vector_result()
+    output_dict : Dict[int,Any]= {}
+    for entry in result.value:                
+        jid = entry.metric.slurmjobid
+        if jid is None:
+            continue
+        value = entry.value # The first is the time point, the second is the value
+        if value is None:
+            continue
+        output_dict[jid] = output_type(value)
+    return output_dict
+
+def fetch_matrix_result(query: str, output_type : Type ) -> Dict[int,List[TimeStampValue]]:
+    """ Fetch a matrix result (one vector per slurmjobid) from prometheus"""
+    result = PrometheusMatrixResult.model_validate(prometheus_client.custom_query_range(query=query, start_time=datetime.now()-timedelta(days=30), end_time=datetime.now(), step="1d")).to_matrix_result(output_type)
+    output_dict : Dict[int,List[Any]]= {}
+    for entry in result.values:        
+        jid = entry.metric.slurmjobid
+        if jid is None:
+            continue            
+        values = entry.values
+        output_dict[jid] = values
+    return output_dict
+
+def fetch_max_gpu_memories(job_id: List[int]) -> Dict[int,int]:   
+    """Fetch the maximum GPU memory used from prometheus"""
+    # we want the max of the sum of all memory usages for all gpus used in the job
+    query = f'max by (slurmjobid) (sum by (slurmjobid) (max_over_time(slurm_job_memory_max{{slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d]))'
+    return fetch_vector_result(query, int)    
+
+def fetch_average_gpu_usage(job_id: List[int]) -> Dict[int,float]:   
+    """Fetch the average GPU usage of a job from prometheus"""
+    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d]))'
+    return fetch_vector_result(query, float)
+
+
 
 
 # create Database
-def fetch_jobs() -> List[Job]:
+def fetch_jobs() -> None:
+    """ Fetch list of jobs for user """
     global db, db_time, queue, current_jobs
     # we don't always update.
     with lock:
@@ -52,16 +102,18 @@ def fetch_jobs() -> List[Job]:
 def fetch_running_jobs() -> List[RunningJob]:
     # possibly update jobs
     fetch_jobs()
+    assert current_jobs is not None
     return [job for job in current_jobs if isinstance(job, RunningJob)]
 
 
-def fetch_finished_jobs() -> List[RunningJob]:
+def fetch_finished_jobs() -> List[FinishedJob]:
     # possibly update jobs
     fetch_jobs()
+    assert current_jobs is not None
     return [job for job in current_jobs if isinstance(job, FinishedJob)]
 
 
-def run_command(command: str) -> str:
+def run_command(command: str) -> str | None:
     try:
         # Run the command and capture the output
         result = subprocess.run(
@@ -100,7 +152,7 @@ class DBJob:
             return None
 
 
-def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE):
+def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
 
     id = db_job.get("JobID")
     # print(f"ID: {id}")
