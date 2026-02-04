@@ -13,6 +13,29 @@
       :tableStyle="`min-width: ${full ? 50.5 : 12.5} rem`"
     >
       <template #empty> No jobs found </template>
+      <template #header>
+      <div class="flex w-full justify-content-between">
+          <div class="text-xl">Job History</div>
+          <IconField>
+              <InputIcon>
+                  <i class="pi pi-search" />
+              </InputIcon>
+              <InputText v-model="filters['global'].value" placeholder="Search" />
+          </IconField>
+          <div>
+            <Button
+              v-tooltip.left="
+                full ? 'Expand details' : 'Minimize details'
+              "
+              :icon="
+                full ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
+              "
+              @click="$emit('update:full', !full)"
+            >
+            </Button>
+          </div>
+        </div>        
+      </template>
 
       <template #loading>
         <ProgressSpinner
@@ -96,12 +119,18 @@
 <script setup lang="ts">
 import { defineProps, nextTick, ref } from "vue";
 import type { RunningJob, FinishedJob } from "@/lib/types";
+
+import { FilterMatchMode } from '@primevue/core/api';
 import DataTable from "primevue/datatable";
+import InputText from "primevue/inputtext";
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 import Column from "primevue/column";
 import Tag from "primevue/tag";
 import { Button, Popover } from "primevue";
 import ProgressSpinner from "primevue/progressspinner";
 import JobCard from "./JobCard.vue";
+
 import { formatDateTime, getStatusSeverity, isJobStarted } from "@/lib/utils";
 
 defineProps({
@@ -118,6 +147,14 @@ defineProps({
     default: true,
   },
 });
+
+const filters = ref({
+    id: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    status: { value: null, matchMode: FilterMatchMode.STARTS_WITH },        
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
 
 const selectedJob = ref<RunningJob | FinishedJob | null>(null);
 const keepDisplay = ref(false);

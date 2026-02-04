@@ -35,7 +35,7 @@
         <div class="mb-2">
           <i class="pi pi-database mr-2"></i>
           <span class="font-semibold">Memory:</span>
-          {{ job.resources.memory }} GB
+          {{ filesize(job.resources.memory) }}
         </div>
         <div v-if="job.resources.gpu">
           <i class="pi pi-sliders-h mr-2"></i>
@@ -70,8 +70,10 @@
       <div
         class="command-preview overflow-hidden text-overflow-ellipsis white-space-nowrap"
       >
-        <i class="pi pi-code mr-2"></i>
+        <i class="pi pi-code mr-2"> Command:</i>
+        <span class="flex white-space-normal command-info">
         {{ job.command }}
+        </span>
       </div>
     </div>
   </div>
@@ -82,7 +84,7 @@ import Tag from "primevue/tag";
 import type { FinishedJob, RunningJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
 import EfficiencyBar from "./EfficiencyBar.vue";
-
+import { filesize } from "filesize";
 // Props
 defineProps<{
   job: RunningJob | FinishedJob;
@@ -94,6 +96,9 @@ defineProps<{
   transition: all 0.2s;
 }
 
+.command-info {
+  max-width: 600px;  
+}
 .job-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

@@ -8,7 +8,7 @@ const base_url = import.meta.env.VITE_BASE_URL;
 // Mock current jobs data
 const mockCurrentJobs: Array<RunningJob> = [
   {
-    id: "42389",
+    id: "42392",
     name: "deep_learning_model",
     status: "running",
     startTime: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
@@ -25,7 +25,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     command: "python train.py --epochs 100 --batch-size 32",
   },
   {
-    id: "42390",
+    id: "42490",
     name: "data_preprocessing",
     status: "queued",
     nodes: 1,
@@ -51,7 +51,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     command: "./assembly --genome bacteria --threads 16 --memory 64G",
   },
   {
-    id: "42392",
+    id: "42393",
     name: "molecular_dynamics",
     status: "queued",
     nodes: 2,
@@ -120,7 +120,7 @@ const mockJobHistory: Array<FinishedJob> = [
         amount: 2,
       },
     },
-    command: "python train.py --epochs 100 --batch-size 32",
+    command: "/usr/bin/sbatch -D /scratch/work/user/.ondemand/batch_connect/sys/bc_desktop/triton/output/0000-0000-000-000-000-00000 -J sys/dashboard/sys/bc_desktop/triton -o /scratch/work/user/.ondemand/batch_connect/sys/bc_desktop/triton/output/00000-000-00000-0000000000000-000/output.log -p interactive --export PATH,GNOME_SHELL_SESSION_MODE,GNOME_SESSION_MODE -N 1 -n 2 -t 2:00:00 --mem 8G --gpus 0 -A account --parsable",
     efficiency: {
       cpu: 92,
       memory: 85,

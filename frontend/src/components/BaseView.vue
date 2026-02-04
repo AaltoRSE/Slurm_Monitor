@@ -1,27 +1,9 @@
 <template>
   <div class="grid">
     <Card v-if="!showHistory" :class="showJobs ? 'col-12' : 'col-6'">
-      <template #title>
-        <div class="flex w-full justify-content-between">
-          <div>Current Jobs</div>
-
-          <div>
-            <Button
-              v-tooltip.left="
-                showHistory ? 'Expand details' : 'Minimize details'
-              "
-              :icon="
-                showJobs ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
-              "
-              @click="showJobs = !showJobs"
-            >
-            </Button>
-          </div>
-        </div>
-      </template>
       <template #content>
         <JobsTable
-          :full="showJobs"
+          v-model:full="showJobs"
           :jobs="jobStore.currentJobs"
           :loading="jobStore.loading.currentJobs"
         />
@@ -29,26 +11,9 @@
     </Card>
 
     <Card v-if="!showJobs" :class="showHistory ? 'col-12' : 'col-6'">
-      <template #title>
-        <div class="flex w-full justify-content-between">
-          <div>Job History</div>
-          <div>
-            <Button
-              v-tooltip.left="
-                showHistory ? 'Expand details' : 'Minimize details'
-              "
-              :icon="
-                showHistory ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
-              "
-              @click="showHistory = !showHistory"
-            >
-            </Button>
-          </div>
-        </div>
-      </template>
       <template #content>
         <JobHistory
-          :full="showHistory"
+          v-model:full="showHistory"
           :jobs="jobStore.jobHistory"
           :loading="jobStore.loading.jobHistory"
         />

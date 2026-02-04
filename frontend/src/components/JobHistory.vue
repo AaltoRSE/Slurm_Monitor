@@ -2,6 +2,7 @@
   <div>
     <DataTable
       :value="jobs"
+      v-model:filters="filters"
       :loading="loading"
       stripedRows
       :paginator="jobs.length > 10"
@@ -10,20 +11,38 @@
       :rowsPerPageOptions="[10, 20, 50]"
       sortField="endTime"
       :sortOrder="-1"
-      :tableStyle="`min-width: ${full ? 80.5 : 12.5} rem`"
-    >
+      :tableStyle="`min-width: ${full ? 80.5 : 12.5} rem`"      
+      :globalFilterFields="['id', 'name', 'status']">    
       <template #empty> No job history found </template>
-
+      <template #header>
+      <div class="flex w-full justify-content-between">
+          <div class="text-xl">Job History</div>
+          <IconField>
+              <InputIcon>
+                  <i class="pi pi-search" />
+              </InputIcon>
+              <InputText v-model="filters['global'].value" placeholder="Search" />
+          </IconField>
+          <div>
+            <Button
+              v-tooltip.left="
+                full ? 'Expand details' : 'Minimize details'
+              "
+              :icon="
+                full ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
+              "
+              @click="$emit('update:full', !full)"
+            >
+            </Button>
+          </div>
+        </div>        
+      </template>
       <template #loading>
-        <ProgressSpinner
-          style="width: 50px; height: 50px"
-          strokeWidth="8"
-          fill="var(--surface-ground)"
-          animationDuration=".5s"
-        />
+        <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8" fill="var(--surface-ground)"
+          animationDuration=".5s" />
       </template>
 
-      <Column field="id" header="Job ID" sortable style="min-width: 6.5rem" />
+      <Column field="id" header="Job ID" sortable style="min-width: 6.5rem" />      
       <Column
         v-if="full"
         field="name"
@@ -50,12 +69,11 @@
           {{ formatDateTime(slotProps.data.startTime) }}
         </template>
       </Column>
-      <Column
-        v-if="full"
+      <Column        
         field="endTime"
         header="End Time"
         sortable
-        style="min-width: 14rem"
+        style="min-width: 5rem"
       >
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.endTime) }}
@@ -125,12 +143,19 @@
 
 <script setup lang="ts">
 import { defineProps, nextTick, ref } from "vue";
+
+import { FilterMatchMode } from '@primevue/core/api';
 import DataTable from "primevue/datatable";
+import InputText from "primevue/inputtext";
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 import Column from "primevue/column";
 import Tag from "primevue/tag";
 import ProgressSpinner from "primevue/progressspinner";
-import EfficiencyBar from "./EfficiencyBar.vue";
 import { Button, Popover } from "primevue";
+
+
+import EfficiencyBar from "./EfficiencyBar.vue";
 import JobCard from "./JobCard.vue";
 import type { RunningJob, FinishedJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity } from "@/lib/utils";
@@ -151,6 +176,13 @@ defineProps({
     type: Boolean,
     default: true,
   },
+});
+
+const filters = ref({
+    id: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    status: { value: null, matchMode: FilterMatchMode.STARTS_WITH },        
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 const handleMouseEnter = (event: any, jobData: FinishedJob) => {
