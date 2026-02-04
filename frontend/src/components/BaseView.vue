@@ -35,7 +35,6 @@
 <script setup lang="ts">
 import { useJobStore } from "../stores/jobStore";
 import Card from "primevue/card";
-import Button from "primevue/button";
 import JobsTable from "@/components/JobsTable.vue";
 import JobHistory from "@/components/JobHistory.vue";
 import QuotaDisplay from "@/components/QuotaDisplay.vue";
