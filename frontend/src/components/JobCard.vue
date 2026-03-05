@@ -120,7 +120,6 @@
 import Tag from "primevue/tag";
 import Button from "primevue/button";
 import { filesize } from "filesize";
-import { ref } from "vue";
 
 import { useJobStore } from "@/stores/jobStore";
 import type { FinishedJob, RunningJob } from "@/lib/types";
