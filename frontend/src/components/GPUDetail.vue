@@ -1,9 +1,11 @@
 <template>
-  <div>
-    <h2>GPU Memory Usage</h2>
-    <DataGraph :data="gpuMemData" label="GPU Memory Usage" unit="MiB" />
-    <h2>GPU Usage</h2>
-    <DataGraph :data="gpuUsageData" :maxx="100" label="GPU Usage" unit="%" />
+  <div class="flex flex-row">
+    <div class="flex flex-column">    
+    <DataGraph class="graph" :data="gpuMemData" label="GPU Memory Usage" type="memory" />
+    </div>
+    <div class="flex flex-column">    
+    <DataGraph class="graph" :data="gpuUsageData" :maxx="100" label="GPU Usage"  />
+    </div>
   </div>
 </template>
 
@@ -21,5 +23,11 @@ const gpuUsageData = computed(() => jobStore.current_job_details?.gpu_usage || [
 h2 {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
+}
+</style>
+<style>
+.graph {
+  width: 450px;
+  height: 350px;
 }
 </style>

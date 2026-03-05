@@ -115,6 +115,15 @@
           <span v-else>N/A</span>
         </template>
       </Column>
+      <Column v-if="full" header="GPU Memory Usage" style="min-width: 10rem">
+        <template #body="slotProps">
+          <EfficiencyBar
+            v-if="slotProps.data.efficiency.gpu_mem_percentage"
+            :value="slotProps.data.efficiency.gpu_mem_percentage"
+          />
+          <span v-else>N/A</span>
+        </template>
+      </Column>
       <Column header="Details" style="min-width: 3rem">
         <template #body="slotProps">
           <Button

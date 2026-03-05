@@ -26,6 +26,8 @@ export type EfficiencyData = {
     gpu?: number;
     gpu_total_mem?: number;
     gpu_individual_mem?: number;
+    gpu_mem_percentage?: number;
+    gpu_total_mem_percentage?: number;
 }
 
 export type TritonMetrics = {

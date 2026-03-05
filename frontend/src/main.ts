@@ -5,6 +5,11 @@ import Tooltip from "primevue/tooltip";
 import ToastService from "primevue/toastservice";
 import App from "@/App.vue";
 import Aura from "@primeuix/themes/aura";
+import { Chart } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
+import 'chartjs-adapter-date-fns';
+Chart.register(zoomPlugin);
+
 
 const stylePreset = definePreset(Aura, {
   semantic: {

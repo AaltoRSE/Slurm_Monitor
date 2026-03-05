@@ -58,12 +58,12 @@ const mockGraphData: GPUGraphData = {
       gpu: "0",
     },
     values: [
-      { timestamp: 1700000015, value: 1700000015 },
-      { timestamp: 1700000030, value: 17000015 },
-      { timestamp: 1700000045, value: 170000015 },
-      { timestamp: 1700000060, value: 8200000015 },
-      { timestamp: 1700000090, value: 100000015 },
-      { timestamp: 1700000120, value: 700000015 },
+      { timestamp: 1700100015, value: 1700000015 },
+      { timestamp: 1700100030, value: 17000015 },
+      { timestamp: 1700100045, value: 170000015 },
+      { timestamp: 1700100060, value: 8200000015 },
+      { timestamp: 1700100090, value: 100000015 },
+      { timestamp: 1700100120, value: 700000015 },
     ],
   },
   {
@@ -76,7 +76,7 @@ const mockGraphData: GPUGraphData = {
       gpu: "1",
     },
     values: [
-      { timestamp: 1700000015, value: 2700000015 },
+      { timestamp: 1700010015, value: 2700000015 },
       { timestamp: 1700000030, value: 7000015 },
       { timestamp: 1700000045, value: 370000015 },
       { timestamp: 1700000060, value: 5200000015 },
@@ -95,6 +95,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     startTime: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
     endTime: new Date(Date.now() + 7200000).toISOString(), // 2 hours from now
     nodes: 1,
+    allocatedNodes: "dgx3",
     resources: {
       cpus: 4,
       memory: 209715200,
@@ -153,7 +154,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     },
     efficiency: {
       gpu: 5,
-      gpu_total_mem: 9476736,
+      gpu_total_mem: 29476736,
       gpu_individual_mem : 9476736,
     },
     command: "./namd2 +idlepoll simulation.conf",
@@ -241,7 +242,7 @@ const mockJobHistory: Array<FinishedJob> = [
       cpu: 88,
       memory: 10,
       gpu: 33,
-      gpu_total_mem: 128719476736,
+      gpu_total_mem: 68719476736,
       gpu_individual_mem : 68719476736,
     },
 
@@ -276,18 +277,54 @@ const mockQuotas: Array<Quota> = [
   },
 ];
 
+const card_memory: Map<string, number> = new Map([
+  ["a100", 80 * 1024 * 1024 * 1024],
+  ["h100", 80 * 1024 * 1024 * 1024],
+  ["h200", 141 * 1024 * 1024 * 1024],
+  ["b300", 288 * 1024 * 1024 * 1024],
+]);
+
+const v100_32 = [ "dgx3",  "dgx5", "dgx6", "dgx7", "gpu1", "gpu2", "gpu3", "gpu4", "gpu5", "gpu6", "gpu7", "gpu8", "gpu9",
+            "gpu10", "gpu28", "gpu29", "gpu30", "gpu31", "gpu32", "gpu33", "gpu34", "gpu35", "gpu36", "gpu37"];
+const v100_16 = ["dgx1", "dgx2",  "dgx8", "dgx9", "dgx10", "dgx15", "dgx16", "dgx17", "dgx18", "dgx19", "dgx20", "dgx21", 
+           "dgx22", "dgx23", "dgx24", "dgx25", "dgx26", "dgx27"];        
+
+export const getCardMemory = (gpu_type: string, node_name: string): number => {
+  if (gpu_type === "v100") {
+    if (v100_32.includes(node_name)) {
+      return 32 * 1024 * 1024 * 1024; // Number in bytes
+    } else if (v100_16.includes(node_name)) { 
+      return 16 * 1024 * 1024 * 1024;
+    }
+  }
+  return card_memory.get(gpu_type) || 0; // Default to 0 if type is unknown
+}
+
+const expandData = (job: RunningJob | FinishedJob): RunningJob | FinishedJob => 
+  {
+    if (job.resources.gpu) {  
+      const card_gpu_mem = getCardMemory(job.resources.gpu.type || "", job.allocatedNodes || "");      
+      if (card_gpu_mem > 0) {
+        if(job.efficiency) {
+          job.efficiency.gpu_mem_percentage = job.efficiency?.gpu_individual_mem ? (job.efficiency.gpu_individual_mem / card_gpu_mem) * 100 : undefined;
+          job.efficiency.gpu_total_mem_percentage = job.efficiency?.gpu_total_mem ? (job.efficiency.gpu_total_mem / (card_gpu_mem * job.resources.gpu.amount)) * 100 : undefined;
+        }
+      }
+    }
+    return job
+  }
 // API mock functions
 export const fetchCurrentJobs = async (): Promise<Array<RunningJob>> => {
   return new Promise((resolve) => {
     if (mock_server) {
       setTimeout(() => {
-        resolve(mockCurrentJobs);
+        resolve(mockCurrentJobs.map(expandData));
       }, MOCK_DELAY);
     } else {
       axios
         .get(`${base_url}/api/running_jobs`)
         .then((response: AxiosResponse) => {
-          resolve(response.data as Array<RunningJob>);
+          resolve((response.data as Array<RunningJob>).map(expandData));
         })
         .catch((e: any) => {
           console.error(e);
@@ -300,13 +337,13 @@ export const fetchJobHistory = async (): Promise<Array<FinishedJob>> => {
   return new Promise((resolve) => {
     if (mock_server) {
       setTimeout(() => {
-        resolve(mockJobHistory);
+        resolve(mockJobHistory.map(expandData)as Array<FinishedJob>);
       }, MOCK_DELAY);
     } else {
       axios
         .get(`${base_url}/api/finished_jobs`)
         .then((response: AxiosResponse) => {
-          resolve(response.data as Array<FinishedJob>);
+          resolve((response.data as Array<FinishedJob>).map(expandData)as Array<FinishedJob>);
         })
         .catch((e: any) => {
           console.error(e);

@@ -128,4 +128,6 @@ class PrometheusMatrixResult(RootModel[List[PrometheusVectorValue]]):
             values=[vector.to_vector_value(value_type) for vector in self.root]
         )
     
-
+class GPUGraphData(BaseModel):
+    gpu_usage: List[VectorValue]
+    gpu_mem: List[VectorValue]

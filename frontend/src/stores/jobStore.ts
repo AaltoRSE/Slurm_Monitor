@@ -7,6 +7,8 @@ import {
 } from "../services/api";
 import type { FinishedJob, GPUGraphData, Quota, RunningJob } from "@/lib/types";
 
+
+
 export const useJobStore = defineStore("job", {
   state: () => {
     return {
