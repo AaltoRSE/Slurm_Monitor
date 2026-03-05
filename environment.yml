@@ -1,0 +1,6 @@
+name: node-env
+channels:
+  - conda-forge
+dependencies:
+  - nodejs=20
+  - npm
