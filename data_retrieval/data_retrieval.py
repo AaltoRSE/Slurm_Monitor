@@ -1,5 +1,5 @@
 import os
-from typing import Any, List, Dict, Type
+from typing import Any, List, Dict, Type, Union
 import subprocess
 import threading
 from datetime import datetime, timedelta
@@ -34,7 +34,7 @@ lock = threading.Lock()
 prometheus_server = "http://localhost:9090"
 prometheus_client = PrometheusConnect(url =prometheus_server, disable_ssl=True)
 
-def get_average(values: List[VectorValue]) -> float | None:
+def get_average(values: List[VectorValue]) -> Union[float, None]:
     all_values = [float(val) for vector in values for val in vector.get_values()]
     if not all_values:
         return None
@@ -54,7 +54,7 @@ def fetch_vector_result(query: str, output_type : Type ) -> Dict[int,Any]:
         output_dict[jid] = output_type(value)
     return output_dict
 
-def fetch_matrix_for_normal_query(query: str, output_type : Type | None = None) -> Dict[int,Any]:
+def fetch_matrix_for_normal_query(query: str, output_type : Union[Type, None] = None) -> Dict[int,Any]:
     """ fetch a vector result from prometheus"""
     result = PrometheusMatrixResult.model_validate(prometheus_client.custom_query(query=query)).to_matrix_result(output_type)
     output_dict : Dict[int,Any]= {}
@@ -67,7 +67,7 @@ def fetch_matrix_for_normal_query(query: str, output_type : Type | None = None) 
         output_dict[jid].append(entry)
     return output_dict
 
-def fetch_matrix_result(query: str, output_type : Type = TimeStampValue, start_time: datetime | None = None, end_time: datetime | None = None, step : str | float = "1d" ) -> Dict[int,List[VectorValue]]:
+def fetch_matrix_result(query: str, output_type : Type = TimeStampValue, start_time: Union[datetime, None] = None, end_time: Union[datetime, None] = None, step : Union[str, float] = "1d" ) -> Dict[int,List[VectorValue]]:
     """ Fetch a matrix result (one vector per slurmjobid) from prometheus"""
     if start_time is None:
         start_time = datetime.now() - timedelta(days=30)
@@ -116,7 +116,7 @@ def fetch_gpu_mem_over_time(job_id: int, user: str) -> List[VectorValue]:
     return result[job_id] if job_id in result else []
 
 
-def get_job_start_time(job: DBJob, queue: SQUEUE | None) -> datetime | None:
+def get_job_start_time(job: DBJob, queue: Union[SQUEUE, None]) -> Union[datetime, None]:
     startTime = job.get("Start")
     if startTime is None:
         if queue is None:
@@ -190,7 +190,7 @@ def fetch_finished_jobs() -> List[FinishedJob]:
     return [job for job in current_jobs if isinstance(job, FinishedJob)]
 
 
-def run_command(command: str) -> str | None:
+def run_command(command: str) -> Union[str, None]:
     try:
         # Run the command and capture the output
         result = subprocess.run(
