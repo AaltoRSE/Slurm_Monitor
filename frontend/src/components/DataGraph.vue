@@ -10,9 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, VueElement } from 'vue';
+import { computed } from 'vue';
 import Chart from 'primevue/chart';
-import Card from 'primevue/card';
 import ProgressSpinner from 'primevue/progressspinner';
 import type { VectorValue } from '../lib/types';
 
@@ -72,14 +71,14 @@ const chartOptions = computed(() => {
                 type: "linear"
             }
         }
-    }
+    } as any
     if (props.maxx) {
         options.scales.y.max = props.maxx;        
     }
     if (props.type === 'memory') {
 
         options.scales.y.ticks = {
-      callback: function(value) {
+      callback: function(value : any) {
         if (value === 0) return '0 B';
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];
         let i = 0;

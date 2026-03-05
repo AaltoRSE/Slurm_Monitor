@@ -62,13 +62,13 @@
           <div class="flex text-lg font-medium mb-2">Resource Efficiency</div>
           <div class="flex flex-row w-full gap-4">
             <div class="flex-column w-5">
-              <div v-if="'cpu' in job.efficiency" class="mb-2">
+              <div v-if="'cpu' in job.efficiency!" class="mb-2">
                 <span class="font-semibold mr-2">CPU:</span>
-                <EfficiencyBar :value="(job as FinishedJob).efficiency.cpu" />
+                <EfficiencyBar :value="(job as FinishedJob).efficiency.cpu!" />
               </div>
-              <div v-if="'memory' in job.efficiency" class="mb-2">
+              <div v-if="'memory' in job.efficiency!" class="mb-2">
                 <span class="font-semibold mr-2">Memory:</span>
-                <EfficiencyBar :value="(job as FinishedJob).efficiency.memory" />
+                <EfficiencyBar :value="(job as FinishedJob).efficiency.memory!" />
               </div>
             </div>
             <div class="flex flex-column w-5">
@@ -126,14 +126,12 @@ import { useJobStore } from "@/stores/jobStore";
 import type { FinishedJob, RunningJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
 import EfficiencyBar from "./EfficiencyBar.vue";
-import GPUDetail from "./GPUDetail.vue";
 // Props
 defineProps<{
   job: RunningJob | FinishedJob;
 }>();
 
 const jobStore = useJobStore();
-const detailsVisible = ref(false)
 const showGPUDetails = async (jobId: string) => {
   console.log(`Loading details for ${jobId}`)
   try {
