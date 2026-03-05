@@ -47,12 +47,12 @@
 
       <div v-if="'efficiency' in job">
         <div class="col-12 mt-3">
-          <div class="text-lg font-medium mb-2">Resource Efficiency</div>
-          <div class="mb-2">
+          <div class="text-lg font-medium mb-2">Resource Efficiency</div>          
+          <div v-if="'cpu' in job.efficiency" class="mb-2">
             <span class="font-semibold mr-2">CPU:</span>
             <EfficiencyBar :value="(job as FinishedJob).efficiency.cpu" />
           </div>
-          <div class="mb-2">
+          <div v-if="'memory' in job.efficiency" class="mb-2">
             <span class="font-semibold mr-2">Memory:</span>
             <EfficiencyBar :value="(job as FinishedJob).efficiency.memory" />
           </div>
@@ -61,7 +61,19 @@
             class="mb-2"
           >
             <span class="font-semibold mr-2">GPU:</span>
-            <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
+            <div class="flex flex-row align-items-center gap-2">
+              <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
+              <Button
+                @click="handleClick($event, slotProps.data)"
+                @mouseleave="handleMouseLeave($event, slotProps.data)"
+                @mouseenter="handleMouseEnter($event, slotProps.data)"
+                icon="pi pi-info-circle"
+                outlined
+                rounded
+                size="small"
+                aria-label="Job Details"
+              ></Button>
+            </div>
           </div>
         </div>
       </div>
@@ -81,6 +93,7 @@
 
 <script setup lang="ts">
 import Tag from "primevue/tag";
+import Button from "primevue/button";
 import type { FinishedJob, RunningJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
 import EfficiencyBar from "./EfficiencyBar.vue";

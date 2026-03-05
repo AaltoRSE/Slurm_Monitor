@@ -1,4 +1,4 @@
-import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
+import type { FinishedJob, Quota, RunningJob, GPUGraphData } from "@/lib/types";
 import axios, { type AxiosResponse } from "axios";
 const mock_server = true;
 // Mock data for Slurm API
@@ -6,6 +6,87 @@ const MOCK_DELAY = 500; // Simulate server delay
 
 const base_url = import.meta.env.VITE_BASE_URL;
 // Mock current jobs data
+
+
+const mockGraphData: GPUGraphData = {
+  gpu_usage: [
+    {
+    metric: {
+      account: "account",
+      instance: "instance",
+      job: "job",
+      slurmjobid: 12345,
+      user: "user",
+      gpu: "0",
+    },
+    values: [
+      { timestamp: 1700000015, value: 70.5 },
+      { timestamp: 1700000030, value: 30.7 },
+      { timestamp: 1700000045, value: 0.6 },
+      { timestamp: 1700000060, value: 70.5 },
+      { timestamp: 1700000090, value: 30.7 },
+      { timestamp: 1700000120, value: 0.6 },
+    ],
+  },
+  {
+    metric: {
+      account: "account",
+      instance: "instance",
+      job: "job",
+      slurmjobid: 12345,
+      user: "user",
+      gpu: "1",
+    },
+    values: [
+      { timestamp: 1700000015, value: 60.5 },
+      { timestamp: 1700000030, value: 40.7 },
+      { timestamp: 1700000045, value: 7.6 },
+      { timestamp: 1700000060, value: 80.5 },
+      { timestamp: 1700000090, value: 20.7 },
+      { timestamp: 1700000120, value: 10.6 },
+    ],
+  }
+  ],
+  gpu_mem: [
+{
+    metric: {
+      account: "account",
+      instance: "instance",
+      job: "job",
+      slurmjobid: 12345,
+      user: "user",
+      gpu: "0",
+    },
+    values: [
+      { timestamp: 1700000015, value: 1700000015 },
+      { timestamp: 1700000030, value: 17000015 },
+      { timestamp: 1700000045, value: 170000015 },
+      { timestamp: 1700000060, value: 8200000015 },
+      { timestamp: 1700000090, value: 100000015 },
+      { timestamp: 1700000120, value: 700000015 },
+    ],
+  },
+  {
+    metric: {
+      account: "account",
+      instance: "instance",
+      job: "job",
+      slurmjobid: 12345,
+      user: "user",
+      gpu: "1",
+    },
+    values: [
+      { timestamp: 1700000015, value: 2700000015 },
+      { timestamp: 1700000030, value: 7000015 },
+      { timestamp: 1700000045, value: 370000015 },
+      { timestamp: 1700000060, value: 5200000015 },
+      { timestamp: 1700000090, value: 400000015 },
+      { timestamp: 1700000120, value: 600000015 },
+    ],
+  }
+  ]
+}
+
 const mockCurrentJobs: Array<RunningJob> = [
   {
     id: "42392",
@@ -18,11 +99,16 @@ const mockCurrentJobs: Array<RunningJob> = [
       cpus: 4,
       memory: 209715200,
       gpu: {
-        type: "NVIDIA A100",
+        type: "v100",
         amount: 1,
       },
     },
     command: "python train.py --epochs 100 --batch-size 32",
+    efficiency: {
+      gpu: 5,
+      gpu_total_mem: 9476736,
+      gpu_individual_mem : 9476736,
+    },
   },
   {
     id: "42490",
@@ -61,9 +147,14 @@ const mockCurrentJobs: Array<RunningJob> = [
       cpus: 8,
       memory: 34359738368,
       gpu: {
-        type: "NVIDIA A100",
+        type: "a100",
         amount: 2,
       },
+    },
+    efficiency: {
+      gpu: 5,
+      gpu_total_mem: 9476736,
+      gpu_individual_mem : 9476736,
     },
     command: "./namd2 +idlepoll simulation.conf",
   },
@@ -116,7 +207,7 @@ const mockJobHistory: Array<FinishedJob> = [
       cpus: 8,
       memory: 34359738368,
       gpu: {
-        type: "NVIDIA A100",
+        type: "h200",
         amount: 2,
       },
     },
@@ -125,6 +216,8 @@ const mockJobHistory: Array<FinishedJob> = [
       cpu: 92,
       memory: 85,
       gpu: 5,
+      gpu_total_mem: 9476736,
+      gpu_individual_mem : 9476736,
     },
   },
   {
@@ -139,8 +232,8 @@ const mockJobHistory: Array<FinishedJob> = [
       cpus: 8,
       memory: 34359738368,
       gpu: {
-        type: "NVIDIA A100",
-        amount: 2,
+        type: "h100",
+        amount: 1,
       },
     },
     command: "python train.py --epochs 100 --batch-size 32",
@@ -148,7 +241,10 @@ const mockJobHistory: Array<FinishedJob> = [
       cpu: 88,
       memory: 10,
       gpu: 33,
+      gpu_total_mem: 128719476736,
+      gpu_individual_mem : 68719476736,
     },
+
   },
 ];
 
@@ -243,13 +339,13 @@ export const fetchGPUDetails = async (job_id: number): Promise<GPUGraphData> => 
   return new Promise((resolve) => {
     if (mock_server) {
       setTimeout(() => {
-        resolve(mockQuotas);
+        resolve(mockGraphData);
       }, MOCK_DELAY);
     } else {
       axios
-        .get(`${base_url}/api/quotas`)
+        .get(`${base_url}/api/gpu_data/${job_id}`)
         .then((response: AxiosResponse) => {
-          resolve(response.data as Array<Quota>);
+          resolve(response.data as GPUGraphData);
         })
         .catch((e: any) => {
           console.error(e);

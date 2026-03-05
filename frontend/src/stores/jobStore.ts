@@ -4,7 +4,7 @@ import {
   fetchJobHistory,
   fetchQuotas,
 } from "../services/api";
-import type { FinishedJob, Quota, RunningJob } from "@/lib/types";
+import type { FinishedJob, GPUGraphData, Quota, RunningJob } from "@/lib/types";
 
 export const useJobStore = defineStore("job", {
   state: () => {
@@ -17,6 +17,8 @@ export const useJobStore = defineStore("job", {
         jobHistory: false,
         quotas: false,
       },
+      current_job: null as number | null,
+      current_job_details: null as GPUGraphData | null,
     };
   },
   actions: {

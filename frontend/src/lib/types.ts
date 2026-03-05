@@ -13,11 +13,20 @@ type Job = {
       amount: number;
     };
   };
-  command: string;
+  command: string;  
 };
 export type RunningJob = Job & {
   allocatedNodes?: string;
+  efficiency?: EfficiencyData;
 };
+
+export type EfficiencyData = {
+    cpu?: number;
+    memory?: number;
+    gpu?: number;
+    gpu_total_mem?: number;
+    gpu_individual_mem?: number;
+}
 
 export type TritonMetrics = {
         account?: string;
@@ -39,11 +48,7 @@ export type GPUGraphData = {
 };
 
 export type FinishedJob = RunningJob & {
-  efficiency: {
-    cpu: number;
-    memory: number;
-    gpu?: number;
-  };
+  efficiency: EfficiencyData;
 };
 
 export type Quota = {
