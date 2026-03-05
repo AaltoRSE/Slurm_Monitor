@@ -1,0 +1,13 @@
+[project]
+name = "slurm-monitor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1.2",
+    "prometheus-api-client>=0.7.0",
+    "pydantic>=2.12.5",
+    "pywebio>=1.8.4",
+    "slurm2sql>=0.9.8",
+]

@@ -237,3 +237,23 @@ export const fetchQuotas = async (): Promise<Array<Quota>> => {
     }
   });
 };
+
+
+export const fetchGPUDetails = async (job_id: number): Promise<GPUGraphData> => {
+  return new Promise((resolve) => {
+    if (mock_server) {
+      setTimeout(() => {
+        resolve(mockQuotas);
+      }, MOCK_DELAY);
+    } else {
+      axios
+        .get(`${base_url}/api/quotas`)
+        .then((response: AxiosResponse) => {
+          resolve(response.data as Array<Quota>);
+        })
+        .catch((e: any) => {
+          console.error(e);
+        });
+    }
+  });
+};

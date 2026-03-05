@@ -8,9 +8,10 @@ import slurm2sql
 import sqlite3
 #from prometheus_api_client import PrometheusConnect
 from prometheus_api_client.prometheus_connect import PrometheusConnect
-
+from data_retrieval.job_classes import DBJob
 from data_retrieval.squeue import SQUEUE
 from models.models import (
+    GPUGraphData,
     Job,
     RunningJob,
     FinishedJob,
@@ -20,7 +21,8 @@ from models.models import (
     PrometheusVectorResult,
     PrometheusMatrixResult,
     VectorResult,
-    TimeStampValue
+    TimeStampValue,
+    VectorValue
 )
 db = None
 db_time = None
@@ -29,8 +31,14 @@ current_jobs = None | List[Job]
 lock = threading.Lock()
 
 #prometheus_server = "http://stats.triton.aalto.fi:9090"
-prometheus_server = "http://localhost:8081"
+prometheus_server = "http://localhost:9090"
 prometheus_client = PrometheusConnect(url =prometheus_server, disable_ssl=True)
+
+def get_average(values: List[VectorValue]) -> float | None:
+    all_values = [float(val) for vector in values for val in vector.get_values()]
+    if not all_values:
+        return None
+    return sum(all_values) / len(all_values)
 
 def fetch_vector_result(query: str, output_type : Type ) -> Dict[int,Any]:
     """ fetch a vector result from prometheus"""
@@ -46,31 +54,88 @@ def fetch_vector_result(query: str, output_type : Type ) -> Dict[int,Any]:
         output_dict[jid] = output_type(value)
     return output_dict
 
-def fetch_matrix_result(query: str, output_type : Type ) -> Dict[int,List[TimeStampValue]]:
-    """ Fetch a matrix result (one vector per slurmjobid) from prometheus"""
-    result = PrometheusMatrixResult.model_validate(prometheus_client.custom_query_range(query=query, start_time=datetime.now()-timedelta(days=30), end_time=datetime.now(), step="1d")).to_matrix_result(output_type)
-    output_dict : Dict[int,List[Any]]= {}
+def fetch_matrix_for_normal_query(query: str, output_type : Type | None = None) -> Dict[int,Any]:
+    """ fetch a vector result from prometheus"""
+    result = PrometheusMatrixResult.model_validate(prometheus_client.custom_query(query=query)).to_matrix_result(output_type)
+    output_dict : Dict[int,Any]= {}
     for entry in result.values:        
         jid = entry.metric.slurmjobid
         if jid is None:
             continue            
-        values = entry.values
-        output_dict[jid] = values
+        if not jid in output_dict:
+            output_dict[jid] = []
+        output_dict[jid].append(entry)
+    return output_dict
+
+def fetch_matrix_result(query: str, output_type : Type = TimeStampValue, start_time: datetime | None = None, end_time: datetime | None = None, step : str | float = "1d" ) -> Dict[int,List[VectorValue]]:
+    """ Fetch a matrix result (one vector per slurmjobid) from prometheus"""
+    if start_time is None:
+        start_time = datetime.now() - timedelta(days=30)
+    if end_time is None:
+        end_time = datetime.now()
+    result = PrometheusMatrixResult.model_validate(
+        prometheus_client.custom_query_range(query=query,
+                                             start_time=start_time, 
+                                             end_time=end_time, 
+                                             step=step)).to_matrix_result(output_type)
+    output_dict : Dict[int,List[VectorValue]]= {}
+    for entry in result.values:        
+        jid = entry.metric.slurmjobid
+        if jid is None:
+            continue            
+        if not jid in output_dict:
+            output_dict[jid] = []
+        output_dict[jid].append(entry)
     return output_dict
 
 def fetch_max_gpu_memories(job_id: List[int]) -> Dict[int,int]:   
     """Fetch the maximum GPU memory used from prometheus"""
     # we want the max of the sum of all memory usages for all gpus used in the job
-    query = f'max by (slurmjobid) (sum by (slurmjobid) (max_over_time(slurm_job_memory_max{{slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d]))'
-    return fetch_vector_result(query, int)    
+    query = f'max by (slurmjobid) (sum by (slurmjobid) (max_over_time(slurm_job_memory_usage_gpu{{account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d])))'
+    return fetch_vector_result(query, int)
+
+def fetch_max_individual_gpu_memories(job_id: List[int]) -> Dict[int,int]:   
+    """Fetch the maximum GPU memory used from prometheus for a single gpu"""
+    # we want the max of the sum of all memory usages for all gpus used in the job
+    query = f'max by (slurmjobid) (max by (slurmjobid, gpu) (max_over_time(slurm_job_memory_usage_gpu{{account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d])))'
+    return fetch_vector_result(query, int)
 
 def fetch_average_gpu_usage(job_id: List[int]) -> Dict[int,float]:   
     """Fetch the average GPU usage of a job from prometheus"""
-    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d]))'
+    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d]))'
     return fetch_vector_result(query, float)
 
+def fetch_gpu_usage_over_time(job_id: int, user: str) -> List[VectorValue]:
+    """Fetch the GPU usage of a set of job over time from prometheus"""
+    result = fetch_matrix_for_normal_query(f'slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}')
+    return result[job_id] if job_id in result else []
+
+def fetch_gpu_mem_over_time(job_id: int, user: str) -> List[VectorValue]:
+    """Fetch the GPU usage of a set of job over time from prometheus"""
+    result = fetch_matrix_for_normal_query(f'slurm_job_memory_usage_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}')
+    return result[job_id] if job_id in result else []
 
 
+def get_job_start_time(job: DBJob, queue: SQUEUE | None) -> datetime | None:
+    startTime = job.get("Start")
+    if startTime is None:
+        if queue is None:
+            return None
+        queue_start = queue.get_start_time(job.get("JobID"))
+        if queue_start == None:
+            return None
+        else:
+            return datetime.fromisoformat(queue_start)
+    else:
+        return datetime.fromtimestamp(int(startTime))
+
+def fetch_gpu_graphs(job_id: int) -> GPUGraphData:
+    user = os.environ.get("USER")
+    if user is None:
+        raise ValueError("USER environment variable not set")
+    gpu_usage = fetch_gpu_usage_over_time(job_id, user)
+    gpu_mem = fetch_gpu_mem_over_time(job_id, user)
+    return GPUGraphData(gpu_usage=gpu_usage, gpu_mem=gpu_mem)
 
 # create Database
 def fetch_jobs() -> None:
@@ -92,6 +157,18 @@ def fetch_jobs() -> None:
             jobs = db.cursor().execute(
                 "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
+            db_jobs = [DBJob(result, headers)for result in jobs]
+            job_ids = [db_job.get("JobID", int) for db_job in db_jobs]
+            gpu_mem_max = fetch_max_gpu_memories(job_ids)
+            gpu_individual_mem_max = fetch_max_individual_gpu_memories(job_ids)
+            gpu_utilization_average = fetch_average_gpu_usage(job_ids)            
+            for job in db_jobs:
+                job_id = job.get("JobID", int)
+                gpu_job = job.get("NGpus", int)
+                if gpu_job is not None and gpu_job > 0:                
+                    job.set("GPUMemTotalMax", gpu_mem_max[job_id] if job_id in gpu_mem_max else None)
+                    job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id] if job_id in gpu_individual_mem_max else None)
+                    job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                        
             headers = extractHeader(jobs.description)
             current_jobs = [
                 convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
@@ -132,25 +209,9 @@ def run_command(command: str) -> str | None:
 
 def extractHeader(db_headers):
     header_dict = {}
-    for i in range(len(db_headers)):
+    for i in range(len(db_headers)):        
         header_dict[db_headers[i][0]] = i
     return header_dict
-
-
-class DBJob:
-    def __init__(self, db_result, headers):
-        # print(headers)
-        # print(db_result)
-        self.headers = headers
-        self.result = db_result
-
-    def get(self, field, type=str):
-        try:
-            value = self.result[self.headers[field]]
-            return type(value) if not value is None else None
-        except:
-            return None
-
 
 def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
 
@@ -217,21 +278,22 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
     # print(nodeList)
     gpu_type = db_job.get("GPUType")
     # print(gpu_type)
-    gpu_eff = db_job.get("GPUeff", float)
-    if gpu_eff:
-        gpu_eff = gpu_eff * 100
+    gpu_eff = db_job.get("GPUAverageUtil", float)
+    gpu_mem_max = db_job.get("GPUMemTotalMax", int)
+    gpu_individual_mem_max = db_job.get("GPUMemIndividualMax", int)
     cpu_eff = db_job.get("CPUeff", float)
     if cpu_eff:
         cpu_eff = cpu_eff * 100
     mem_eff = db_job.get("MemEff", float)
     if mem_eff:
-        mem_eff = mem_eff * 100
+        mem_eff = mem_eff * 100    
     alloc_nodes, expected_nodes = queue.get_nodes(id)
     used_nodes = expected_nodes if status == "PENDING" else alloc_nodes
     if used_nodes == None:
         used_nodes = "unknown"
 
     gpu_res = None if gpus is None else GPUResources(amount=gpus, type=gpu_type)
+
     res = Resources(cpus=cpus, memory=memory, gpu=gpu_res)
     if running:
         return RunningJob(
@@ -245,7 +307,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
             command=commands[0],
         )
     else:
-        efficiency = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff)
+        efficiency = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff, gpu_total_mem=gpu_mem_max, gpu_individual_mem=gpu_individual_mem_max)
         # print(efficieny)
         job = FinishedJob(
             id=id,

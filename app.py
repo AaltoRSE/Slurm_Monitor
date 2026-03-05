@@ -32,6 +32,9 @@ def get_finished_jobs():
 def get_quotas():
     return jsonify([data.model_dump() for data in quotas.get_quotas()])
 
+@monitor_app.route("/api/gpu_data/<int:job_id>")
+def get_gpu_data(job_id: int):
+    return jsonify(data_retrieval.fetch_gpu_graphs(job_id).model_dump())
 
 # Serve other static files (e.g., JS, CSS)
 @monitor_app.route("/<path:path>")
