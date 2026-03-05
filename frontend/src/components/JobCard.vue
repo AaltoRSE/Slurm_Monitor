@@ -86,26 +86,19 @@
         </span>
       </div>
     </div>
-    <Dialog
-      v-model:visible="detailsVisible" 
-      modal
-      header="GPU Details"      
-    >
-      <GPUDetail :data="jobStore.current_job_details" />
-    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import Tag from "primevue/tag";
 import Button from "primevue/button";
-import { Dialog } from "primevue";
+import { filesize } from "filesize";
+import { ref } from "vue";
+
+import { useJobStore } from "@/stores/jobStore";
 import type { FinishedJob, RunningJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
 import EfficiencyBar from "./EfficiencyBar.vue";
-import { filesize } from "filesize";
-import { nextTick, ref } from "vue";
-import { useJobStore } from "@/stores/jobStore";
 import GPUDetail from "./GPUDetail.vue";
 // Props
 defineProps<{
@@ -113,10 +106,22 @@ defineProps<{
 }>();
 
 const jobStore = useJobStore();
-
-const showGPUDetails = (jobId: string) => {
-  jobStore.fetchJobDetails(Number(jobId));
-  JobDetails.value.show();      
+const detailsVisible = ref(false)
+const showGPUDetails = async (jobId: string) => {
+  console.log(`Loading details for ${jobId}` )
+  try {
+    await jobStore.fetchJobDetails(Number(jobId))
+    .then(() => {
+      console.log("Done fetching")
+    })
+    .finally(() => {
+      console.log("Realy done fetching")
+    })
+    jobStore.showJobDetails = true
+  }
+  catch {
+    console.log("Some error occured")
+  }
 };
 </script>
 

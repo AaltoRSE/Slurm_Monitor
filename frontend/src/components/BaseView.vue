@@ -29,18 +29,25 @@
         />
       </template>
     </Card>
+    <Dialog v-model:visible="showJobDetails">
+      <GPUDetail> </GPUDetail>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useJobStore } from "../stores/jobStore";
 import Card from "primevue/card";
+import Dialog from "primevue/dialog"
 import JobsTable from "@/components/JobsTable.vue";
 import JobHistory from "@/components/JobHistory.vue";
 import QuotaDisplay from "@/components/QuotaDisplay.vue";
 import { ref } from "vue";
+import GPUDetail from "./GPUDetail.vue";
+import { storeToRefs } from "pinia";
 
 const jobStore = useJobStore();
 const showJobs = ref(false);
 const showHistory = ref(false);
+const {showJobDetails} = storeToRefs(jobStore)
 </script>

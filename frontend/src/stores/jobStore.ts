@@ -20,6 +20,7 @@ export const useJobStore = defineStore("job", {
       },
       current_job: null as number | null,
       current_job_details: null as GPUGraphData | null,
+      showJobDetails: false
     };
   },
   actions: {
@@ -58,9 +59,12 @@ export const useJobStore = defineStore("job", {
     },
 
     async fetchJobDetails(jobId: number) {
+      console.log("Fetching job details for a job")
       this.current_job = jobId;
       this.current_job_details = null; // Clear previous details while loading new ones
       this.current_job_details = await fetchGPUDetails(jobId);
+      console.log("New details are:")
+      console.log(this.current_job_details)
     },
   },
 });
