@@ -24,14 +24,15 @@ from models.models import (
     TimeStampValue,
     VectorValue
 )
+from logger import get_logger
+logger = get_logger()
 db = None
 db_time = None
 queue = None
 current_jobs : Union[None, List[Job]] = None
 lock = threading.Lock()
 
-#prometheus_server = "http://stats.triton.aalto.fi:9090"
-prometheus_server = "http://localhost:9090"
+prometheus_server = "http://stats.triton.aalto.fi:9090"
 prometheus_client = PrometheusConnect(url =prometheus_server, disable_ssl=True)
 
 def get_average(values: List[VectorValue]) -> Union[float, None]:
@@ -141,6 +142,7 @@ def fetch_gpu_graphs(job_id: int) -> GPUGraphData:
 def fetch_jobs() -> None:
     """ Fetch list of jobs for user """
     global db, db_time, queue, current_jobs
+    logger.info("Fetching jobs from database...")
     # we don't always update.
     with lock:
         if (
@@ -157,11 +159,14 @@ def fetch_jobs() -> None:
             jobs = db.cursor().execute(
                 "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
             )
+            headers = extractHeader(jobs.description)
             db_jobs = [DBJob(result, headers)for result in jobs]
             job_ids = [db_job.get("JobID", int) for db_job in db_jobs]
+            logger.info("Fetching data from prometheus..")
             gpu_mem_max = fetch_max_gpu_memories(job_ids)
             gpu_individual_mem_max = fetch_max_individual_gpu_memories(job_ids)
             gpu_utilization_average = fetch_average_gpu_usage(job_ids)            
+            logger.info("Data retrieved proceeding...")
             for job in db_jobs:
                 job_id = job.get("JobID", int)
                 gpu_job = job.get("NGpus", int)
@@ -169,7 +174,7 @@ def fetch_jobs() -> None:
                     job.set("GPUMemTotalMax", gpu_mem_max[job_id] if job_id in gpu_mem_max else None)
                     job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id] if job_id in gpu_individual_mem_max else None)
                     job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                        
-            headers = extractHeader(jobs.description)
+            logger.info("Building jobs")
             current_jobs = [
                 convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
                 for result in jobs
