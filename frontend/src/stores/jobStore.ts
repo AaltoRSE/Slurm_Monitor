@@ -3,6 +3,7 @@ import {
   fetchCurrentJobs,
   fetchJobHistory,
   fetchQuotas,
+  fetchGPUDetails
 } from "../services/api";
 import type { FinishedJob, GPUGraphData, Quota, RunningJob } from "@/lib/types";
 
@@ -54,6 +55,12 @@ export const useJobStore = defineStore("job", {
       } finally {
         this.loading.quotas = false;
       }
+    },
+
+    async fetchJobDetails(jobId: number) {
+      this.current_job = jobId;
+      this.current_job_details = null; // Clear previous details while loading new ones
+      this.current_job_details = await fetchGPUDetails(jobId);
     },
   },
 });

@@ -1,21 +1,21 @@
 <template>
   <div>
     <h2>GPU Memory Usage</h2>
-    <Datagraph :data="gpuMemData" />
+    <DataGraph :data="gpuMemData" label="GPU Memory Usage" unit="MiB" />
     <h2>GPU Usage</h2>
-    <Datagraph :data="gpuUsageData" />
+    <DataGraph :data="gpuUsageData" label="GPU Usage" unit="%" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import Datagraph from './Datagraph.vue';
+import DataGraph from './DataGraph.vue';
 import type { GPUGraphData } from '../lib/types';
 
-const props = defineProps<{ data: GPUGraphData }>();
+const props = defineProps<{ data?: GPUGraphData }>();
 
-const gpuMemData = computed(() => props.data.gpu_mem || []);
-const gpuUsageData = computed(() => props.data.gpu_usage || []);
+const gpuMemData = computed(() => props.data?.gpu_mem || []);
+const gpuUsageData = computed(() => props.data?.gpu_usage || []);
 
 </script>
 
