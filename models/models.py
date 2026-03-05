@@ -1,5 +1,5 @@
 from pydantic import BaseModel, RootModel
-from typing import Any, Optional, Union, List, Dict, Tuple, Type
+from typing import Any, Optional, Union, List, Dict, Tuple, Type, Union
 from datetime import datetime
 
 class TritonMetrics(BaseModel):
@@ -86,7 +86,7 @@ class PrometheusSingleValue(BaseModel):
 class PrometheusVectorValue(BaseModel):    
     metric: TritonMetrics
     values: List[Tuple[float, str]]
-    def to_vector_value(self, value_type : Type | None = None) -> VectorValue:
+    def to_vector_value(self, value_type : Union[Type, None] = None) -> VectorValue:
         return VectorValue(
             metric=self.metric,
             values=[TimeStampValue(timestamp=ts, value=val if value_type is None else value_type(val)) for ts, val in self.values]
@@ -123,7 +123,7 @@ class PrometheusMatrixResult(RootModel[List[PrometheusVectorValue]]):
 
     def __getitem__(self, item):
         return self.root[item]
-    def to_matrix_result(self, value_type : Type | None = None) -> MatrixResult:        
+    def to_matrix_result(self, value_type : Union[Type, None] = None) -> MatrixResult:        
         return MatrixResult(            
             values=[vector.to_vector_value(value_type) for vector in self.root]
         )
