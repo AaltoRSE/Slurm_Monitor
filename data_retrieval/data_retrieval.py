@@ -27,7 +27,7 @@ from models.models import (
 db = None
 db_time = None
 queue = None
-current_jobs = None | List[Job]
+current_jobs : Union[None, List[Job]] = None
 lock = threading.Lock()
 
 #prometheus_server = "http://stats.triton.aalto.fi:9090"
