@@ -2,4 +2,4 @@ name: node-env
 channels:
   - conda-forge
 dependencies:
-  - nodejs=22.15
+  - nodejs=22.17
