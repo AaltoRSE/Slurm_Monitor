@@ -329,10 +329,10 @@ const expandData = (job: RunningJob | FinishedJob): RunningJob | FinishedJob =>
         }
       }
     }
-    if (job.endTime instanceof String) {
+    if (job.endTime) {
       job.endTime = new Date(job.endTime);
     }
-    if (job.startTime instanceof String) {
+    if (job.startTime) {
       job.startTime = new Date(job.startTime);
     }
     return job

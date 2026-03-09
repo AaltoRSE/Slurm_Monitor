@@ -64,6 +64,7 @@
         header="Start Time"
         sortable
         style="min-width: 14rem"
+        dataType="Date"
       >
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.startTime) }}
@@ -73,6 +74,7 @@
         field="endTime"
         header="End Time"
         sortable
+        dataType="Date"
         style="min-width: 5rem"
       >
         <template #body="slotProps">
