@@ -2,8 +2,8 @@ type Job = {
   id: string;
   name: string;
   status: string;
-  startTime?: string;
-  endTime: string;
+  startTime?: string | Date;
+  endTime: string | Date;
   nodes: number;
   resources: {
     cpus: number;

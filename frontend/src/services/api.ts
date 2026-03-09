@@ -187,7 +187,7 @@ const mockJobHistory: Array<FinishedJob> = [
     status: "completed",
     nodes: 1,
     startTime: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    endTime: new Date(Date.now() - 79200000).toISOString(), // 22 hours ago
+    endTime: new Date(Date.now() - 83400000).toISOString(), // 22 hours ago
     resources: {
       cpus: 4,
       memory: 12884901888,
@@ -220,8 +220,8 @@ const mockJobHistory: Array<FinishedJob> = [
     name: "neural_network_training",
     status: "completed",
     nodes: 2,
-    startTime: new Date(Date.now() - 28800000).toISOString(), // 8 hours ago
-    endTime: new Date(Date.now() - 18000000).toISOString(), // 5 hours agoresources:
+    startTime: new Date(Date.now() - 288000000).toISOString(), // 8 hours ago
+    endTime: new Date(Date.now() - 180000000).toISOString(), // 5 hours agoresources:
     resources: {
       cpus: 8,
       memory: 34359738368,
@@ -328,6 +328,12 @@ const expandData = (job: RunningJob | FinishedJob): RunningJob | FinishedJob =>
           job.efficiency.gpu_total_mem_percentage = job.efficiency?.gpu_total_mem ? (job.efficiency.gpu_total_mem / (card_gpu_mem * job.resources.gpu.amount)) * 100 : undefined;
         }
       }
+    }
+    if (job.endTime instanceof String) {
+      job.endTime = new Date(job.endTime);
+    }
+    if (job.startTime instanceof String) {
+      job.startTime = new Date(job.startTime);
     }
     return job
   }
