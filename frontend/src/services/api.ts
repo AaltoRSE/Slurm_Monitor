@@ -45,6 +45,24 @@ const mockGraphData: GPUGraphData = {
       { timestamp: 1700000090, value: 20.7 },
       { timestamp: 1700000120, value: 10.6 },
     ],
+  },
+  {
+    metric: {
+      account: "account",
+      instance: "instance",
+      job: "job",
+      slurmjobid: 12345,
+      user: "user",
+      gpu: "1",
+    },
+    values: [
+      { timestamp: 1700000135, value: 60.5 },
+      { timestamp: 1700000150, value: 40.7 },
+      { timestamp: 1700000165, value: 7.6 },
+      { timestamp: 1700000180, value: 80.5 },
+      { timestamp: 1700000195, value: 20.7 },
+      { timestamp: 1700000210, value: 10.6 },
+    ],
   }
   ],
   gpu_mem: [

@@ -92,28 +92,28 @@ def fetch_matrix_result(query: str, output_type : Type = TimeStampValue, start_t
 def fetch_max_gpu_memories(job_id: List[int]) -> Dict[int,int]:   
     """Fetch the maximum GPU memory used from prometheus"""
     # we want the max of the sum of all memory usages for all gpus used in the job
-    query = f'max by (slurmjobid) (sum by (slurmjobid) (max_over_time(slurm_job_memory_usage_gpu{{account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d])))'
+    query = f'max by (slurmjobid) (sum by (slurmjobid) (max_over_time(slurm_job_memory_usage_gpu{{account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[19d])))'
     return fetch_vector_result(query, int)
 
 def fetch_max_individual_gpu_memories(job_id: List[int]) -> Dict[int,int]:   
     """Fetch the maximum GPU memory used from prometheus for a single gpu"""
     # we want the max of the sum of all memory usages for all gpus used in the job
-    query = f'max by (slurmjobid) (max by (slurmjobid, gpu) (max_over_time(slurm_job_memory_usage_gpu{{account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d])))'
+    query = f'max by (slurmjobid) (max by (slurmjobid, gpu) (max_over_time(slurm_job_memory_usage_gpu{{account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[19d])))'
     return fetch_vector_result(query, int)
 
 def fetch_average_gpu_usage(job_id: List[int]) -> Dict[int,float]:   
     """Fetch the average GPU usage of a job from prometheus"""
-    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[30d]))'
+    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[19d]))'
     return fetch_vector_result(query, float)
 
 def fetch_gpu_usage_over_time(job_id: int, user: str) -> List[VectorValue]:
     """Fetch the GPU usage of a set of job over time from prometheus"""
-    result = fetch_matrix_for_normal_query(f'slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}')
+    result = fetch_matrix_for_normal_query(f'slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}[19d]')
     return result[job_id] if job_id in result else []
 
 def fetch_gpu_mem_over_time(job_id: int, user: str) -> List[VectorValue]:
     """Fetch the GPU usage of a set of job over time from prometheus"""
-    result = fetch_matrix_for_normal_query(f'slurm_job_memory_usage_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}')
+    result = fetch_matrix_for_normal_query(f'slurm_job_memory_usage_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}[19d]')
     return result[job_id] if job_id in result else []
 
 
@@ -163,10 +163,12 @@ def fetch_jobs() -> None:
             db_jobs = [DBJob(result, headers)for result in jobs]
             job_ids = [db_job.get("JobID", int) for db_job in db_jobs]
             logger.info("Fetching data from prometheus..")
+            logger.info(f"Job IDs: {job_ids}")
             gpu_mem_max = fetch_max_gpu_memories(job_ids)
             gpu_individual_mem_max = fetch_max_individual_gpu_memories(job_ids)
-            gpu_utilization_average = fetch_average_gpu_usage(job_ids)            
+            gpu_utilization_average = fetch_average_gpu_usage(job_ids)                        
             logger.info("Data retrieved proceeding...")
+            logger.info(headers)
             for job in db_jobs:
                 job_id = job.get("JobID", int)
                 gpu_job = job.get("NGpus", int)
@@ -174,11 +176,11 @@ def fetch_jobs() -> None:
                     job.set("GPUMemTotalMax", gpu_mem_max[job_id] if job_id in gpu_mem_max else None)
                     job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id] if job_id in gpu_individual_mem_max else None)
                     job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                        
+            logger.info(headers)
+
             logger.info("Building jobs")
-            current_jobs = [
-                convert_DB_to_Job(db_job=DBJob(result, headers), queue=queue)
-                for result in jobs
-            ]
+            current_jobs = [convert_DB_to_Job(job, queue) for job in db_jobs]
+            logger.info(f"Finished fetching jobs. Total jobs fetched: {len(current_jobs)}")
 
 
 def fetch_running_jobs() -> List[RunningJob]:
@@ -298,7 +300,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
         used_nodes = "unknown"
 
     gpu_res = None if gpus is None else GPUResources(amount=gpus, type=gpu_type)
-
+    efficiency = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff, gpu_total_mem=gpu_mem_max, gpu_individual_mem=gpu_individual_mem_max)
     res = Resources(cpus=cpus, memory=memory, gpu=gpu_res)
     if running:
         return RunningJob(
@@ -310,9 +312,9 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
             endTime=endTime,
             resources=res,
             command=commands[0],
+            efficiency=efficiency,
         )
-    else:
-        efficiency = JobEfficiency(cpu=cpu_eff, memory=mem_eff, gpu=gpu_eff, gpu_total_mem=gpu_mem_max, gpu_individual_mem=gpu_individual_mem_max)
+    else:        
         # print(efficieny)
         job = FinishedJob(
             id=id,
