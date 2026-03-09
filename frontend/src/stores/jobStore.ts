@@ -5,7 +5,7 @@ import {
   fetchQuotas,
   fetchGPUDetails
 } from "../services/api";
-import type { FinishedJob, GPUGraphData, Quota, RunningJob } from "@/lib/types";
+import type { FinishedJob, GPUGraphData, Quota, RunningJob, VectorValue } from "@/lib/types";
 
 
 
@@ -64,7 +64,24 @@ export const useJobStore = defineStore("job", {
       console.log("Fetching job details for a job")
       this.current_job = jobId;
       this.current_job_details = null; // Clear previous details while loading new ones
-      this.current_job_details = await fetchGPUDetails(jobId);
+      const job_details = await fetchGPUDetails(jobId);
+      // combine any job details that have the same gpu_id into one entry with an array of timestamps and gpu_usage values
+      const combine = (accumulator: VectorValue[], current: VectorValue) => {
+        const existing = accumulator.find((item) => item.metric.gpu === current.metric.gpu);
+        if (existing) {
+          existing.values.push(...current.values);
+        } else {
+          accumulator.push(current);
+        }
+        console.log(current.metric.gpu)
+        return accumulator;
+        
+      };
+
+      job_details.gpu_mem = job_details.gpu_mem.reduce(combine, []);
+      job_details.gpu_usage = job_details.gpu_usage.reduce(combine, []);
+      this.current_job_details = job_details;
+
       console.log("New details are:")
       console.log(this.current_job_details)
     },

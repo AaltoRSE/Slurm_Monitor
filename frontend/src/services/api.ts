@@ -1,6 +1,6 @@
 import type { FinishedJob, Quota, RunningJob, GPUGraphData } from "@/lib/types";
 import axios, { type AxiosResponse } from "axios";
-const mock_server = false;
+const mock_server = true;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
