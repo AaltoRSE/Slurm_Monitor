@@ -2,8 +2,8 @@ type Job = {
   id: string;
   name: string;
   status: string;
-  startTime?: string;
-  endTime: string;
+  startTime?: string | Date;
+  endTime: string | Date;
   nodes: number;
   resources: {
     cpus: number;
@@ -13,18 +13,44 @@ type Job = {
       amount: number;
     };
   };
-  command: string;
+  command: string;  
 };
 export type RunningJob = Job & {
   allocatedNodes?: string;
+  efficiency?: EfficiencyData;
+};
+
+export type EfficiencyData = {
+    cpu?: number;
+    memory?: number;
+    gpu?: number;
+    gpu_total_mem?: number;
+    gpu_individual_mem?: number;
+    gpu_mem_percentage?: number;
+    gpu_total_mem_percentage?: number;
+}
+
+export type TritonMetrics = {
+        account?: string;
+        instance?: string;
+        job?: string;
+        slurmjobid?: number;
+        user?: string;
+        gpu?: string;        
+}
+
+export type VectorValue = {
+  metric : TritonMetrics;
+  values: Array<{ timestamp: number; value: any }>;
+};
+
+export type GPUGraphData = {
+  gpu_usage: Array<VectorValue>;
+  gpu_mem: Array<VectorValue>;
 };
 
 export type FinishedJob = RunningJob & {
-  efficiency: {
-    cpu: number;
-    memory: number;
-    gpu?: number;
-  };
+  efficiency: EfficiencyData;
 };
 
 export type Quota = {

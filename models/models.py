@@ -1,17 +1,38 @@
 from pydantic import BaseModel, RootModel
-from typing import Any, Optional, Union, List, Dict, Tuple, Type
+from typing import Any, Optional, Union, List, Dict, Tuple, Type, Union
 from datetime import datetime
 
+class TritonMetrics(BaseModel):
+        account: Optional[str] = None
+        instance: Optional[str] = None
+        job: Optional[str] = None
+        slurmjobid:  Optional[int] = None
+        user: Optional[str] = None
+        gpu: Optional[str] = None
+        __name__: Optional[str] = None
+
+class TimeStampValue(BaseModel):    
+    timestamp: float
+    value: Any
+
+class SingleValue(TimeStampValue):
+    metric: TritonMetrics
+
+class VectorValue(BaseModel):    
+    metric: TritonMetrics
+    values: List[TimeStampValue]
+    def get_values(self) -> List[Any]:
+        return [val.value for val in self.values]
 
 class GPUResources(BaseModel):
     type: Optional[str] = None
-    amount: int
+    amount: int    
 
 
 class Resources(BaseModel):
     cpus: int
     memory: int
-    gpu: Optional[GPUResources] = None
+    gpu: Optional[GPUResources] = None    
 
 
 class Job(BaseModel):
@@ -23,16 +44,26 @@ class Job(BaseModel):
     endTime: Optional[Union[datetime, str]] = None
     resources: Resources
     command: str
-
-
-class RunningJob(Job):
     allocatedNodes: Optional[str] = None
-
-
+    
 class JobEfficiency(BaseModel):
     cpu: Optional[float] = None
     memory: Optional[float] = None
     gpu: Optional[float] = None
+    gpu_total_mem :Optional[float] = None
+    gpu_individual_mem : Optional[float] = None
+
+class RunningJob(Job):    
+    efficiency: Optional[JobEfficiency] = None
+
+class GPUEfficiency(BaseModel):
+    memory_max: Optional[float] = None
+    memory_single_card_max: Optional[float] = None
+    utilization: Optional[float] = None        
+
+
+
+
 
 
 class FinishedJob(Job):
@@ -49,31 +80,6 @@ class Quota(BaseModel):
 
 
 
-
-
-
-
-class TritonMetrics(BaseModel):
-        account: Optional[str] = None
-        instance: Optional[str] = None
-        job: Optional[str] = None
-        slurmjobid:  Optional[int] = None
-        user: Optional[str] = None
-        __name__: Optional[str] = None
-
-class TimeStampValue(BaseModel):    
-    timestamp: float
-    value: Any
-
-class SingleValue(TimeStampValue):
-    metric: TritonMetrics
-
-
-class VectorValue(BaseModel):    
-    metric: TritonMetrics
-    values: List[TimeStampValue]
-
-class JobDataPoint(BaseModel):
     
 class PrometheusSingleValue(BaseModel):    
     metric: TritonMetrics
@@ -82,7 +88,7 @@ class PrometheusSingleValue(BaseModel):
 class PrometheusVectorValue(BaseModel):    
     metric: TritonMetrics
     values: List[Tuple[float, str]]
-    def to_vector_value(self, value_type : Type | None = None) -> VectorValue:
+    def to_vector_value(self, value_type : Union[Type, None] = None) -> VectorValue:
         return VectorValue(
             metric=self.metric,
             values=[TimeStampValue(timestamp=ts, value=val if value_type is None else value_type(val)) for ts, val in self.values]
@@ -90,7 +96,7 @@ class PrometheusVectorValue(BaseModel):
 
 
 class VectorResult(BaseModel):    
-    value: List[SingleValue]
+    value: List[SingleValue ]
 
 class PrometheusVectorResult(RootModel[List[PrometheusSingleValue]]):          
     root: list[PrometheusSingleValue]
@@ -108,6 +114,7 @@ class PrometheusVectorResult(RootModel[List[PrometheusSingleValue]]):
     
 class MatrixResult(BaseModel):
     values: List[VectorValue]
+     
     
 PrometheusValueList = List[PrometheusSingleValue]
 
@@ -118,8 +125,11 @@ class PrometheusMatrixResult(RootModel[List[PrometheusVectorValue]]):
 
     def __getitem__(self, item):
         return self.root[item]
-    def to_matrix_result(self, value_type : Type | None = None) -> MatrixResult:        
+    def to_matrix_result(self, value_type : Union[Type, None] = None) -> MatrixResult:        
         return MatrixResult(            
             values=[vector.to_vector_value(value_type) for vector in self.root]
         )
     
+class GPUGraphData(BaseModel):
+    gpu_usage: List[VectorValue]
+    gpu_mem: List[VectorValue]

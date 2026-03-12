@@ -13,9 +13,7 @@
           <i class="pi pi-calendar mr-2"></i>
           <span class="font-semibold">Start:</span>
           {{ formatDateTime(job.startTime) }}
-          <span v-if="!isJobFinished(job.status)" class="text-xs text-500"
-            >(Projected)</span
-          >
+          <span v-if="!isJobFinished(job.status)" class="text-xs text-500">(Projected)</span>
         </div>
         <div>
           <i class="pi pi-calendar-times mr-2"></i>
@@ -23,7 +21,7 @@
           {{ formatDateTime(job.endTime) }}
           <span class="text-xs text-500">{{
             isJobFinished(job.status) ? "" : "(Projected)"
-          }}</span>
+            }}</span>
         </div>
       </div>
 
@@ -38,41 +36,79 @@
           {{ filesize(job.resources.memory) }}
         </div>
         <div v-if="job.resources.gpu">
+          <div>
           <i class="pi pi-sliders-h mr-2"></i>
           <span class="font-semibold">GPU:</span>
           {{ job.resources.gpu.amount }}x
           {{ job.resources.gpu.type }}
         </div>
+          <div>
+          <i class="pi pi-sliders-h mr-2"></i>
+          <span class="font-semibold">GPU Mem (per card):</span>
+          {{ filesize(job.efficiency!.gpu_individual_mem!) }}          
+        </div>
+          <div>
+          <i class="pi pi-sliders-h mr-2"></i>
+          <span class="font-semibold">Total GPU Mem:</span>
+          {{ filesize(job.efficiency!.gpu_total_mem!) }}          
+          
+        </div>
+        </div>
+
       </div>
 
-      <div v-if="'efficiency' in job">
-        <div class="col-12 mt-3">
-          <div class="text-lg font-medium mb-2">Resource Efficiency</div>
-          <div class="mb-2">
-            <span class="font-semibold mr-2">CPU:</span>
-            <EfficiencyBar :value="(job as FinishedJob).efficiency.cpu" />
-          </div>
-          <div class="mb-2">
-            <span class="font-semibold mr-2">Memory:</span>
-            <EfficiencyBar :value="(job as FinishedJob).efficiency.memory" />
-          </div>
-          <div
-            v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu"
-            class="mb-2"
-          >
-            <span class="font-semibold mr-2">GPU:</span>
-            <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
+      <div v-if="'efficiency' in job" class="flex w-full">
+        <div class="flex col-12 flex-column mt-3">
+          <div class="flex text-lg font-medium mb-2">Resource Efficiency</div>
+          <div class="flex flex-row w-full gap-4">
+            <div class="flex-column w-5">
+              <div v-if="'cpu' in job.efficiency!" class="mb-2">
+                <span class="font-semibold mr-2">CPU:</span>
+                <EfficiencyBar :value="(job as FinishedJob).efficiency.cpu!" />
+              </div>
+              <div v-if="'memory' in job.efficiency!" class="mb-2">
+                <span class="font-semibold mr-2">Memory:</span>
+                <EfficiencyBar :value="(job as FinishedJob).efficiency.memory!" />
+              </div>
+            </div>
+            <div v-if="(job as FinishedJob).resources.gpu !== undefined" class="flex flex-column w-5">
+              <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu"
+                class="mb-2">
+                <span class="font-semibold mr-2">GPU:
+                  <Button @click="showGPUDetails(job.id)" icon="pi pi-info-circle" outlined rounded size="small"
+                    aria-label="Job Details"></Button>
+                </span>
+                <div class="flex flex-row align-items-center gap-2">
+                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
+                  
+                </div>
+              </div>
+              <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_mem_percentage"
+                class="mb-2">
+                <span class="font-semibold mr-2">GPU Mem per card (max):</span>
+                <div class="flex flex-row align-items-center gap-2">
+                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu_mem_percentage!" />                  
+                </div>
+              </div>
+                            <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_total_mem_percentage"
+                class="mb-2">
+                <span class="font-semibold mr-2">Total GPU Mem:</span>
+                <div class="flex flex-row align-items-center gap-2">
+                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu_total_mem_percentage!" />
+                  
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="p-2 border-top-1 border-300">
-      <div
-        class="command-preview overflow-hidden text-overflow-ellipsis white-space-nowrap"
-      >
+      <div class="command-preview overflow-hidden text-overflow-ellipsis white-space-nowrap">
         <i class="pi pi-code mr-2"> Command:</i>
         <span class="flex white-space-normal command-info">
-        {{ job.command }}
+          {{ job.command }}
         </span>
       </div>
     </div>
@@ -81,14 +117,35 @@
 
 <script setup lang="ts">
 import Tag from "primevue/tag";
+import Button from "primevue/button";
+import { filesize } from "filesize";
+
+import { useJobStore } from "@/stores/jobStore";
 import type { FinishedJob, RunningJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity, isJobFinished } from "@/lib/utils";
 import EfficiencyBar from "./EfficiencyBar.vue";
-import { filesize } from "filesize";
 // Props
 defineProps<{
   job: RunningJob | FinishedJob;
 }>();
+
+const jobStore = useJobStore();
+const showGPUDetails = async (jobId: string) => {
+  console.log(`Loading details for ${jobId}`)
+  try {
+    await jobStore.fetchJobDetails(Number(jobId))
+      .then(() => {
+        console.log("Done fetching")
+      })
+      .finally(() => {
+        console.log("Realy done fetching")
+      })
+    jobStore.showJobDetails = true
+  }
+  catch {
+    console.log("Some error occured")
+  }
+};
 </script>
 
 <style scoped>
@@ -97,8 +154,9 @@ defineProps<{
 }
 
 .command-info {
-  max-width: 600px;  
+  max-width: 600px;
 }
+
 .job-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

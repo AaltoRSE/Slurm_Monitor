@@ -64,6 +64,7 @@
         header="Start Time"
         sortable
         style="min-width: 14rem"
+        dataType="Date"
       >
         <template #body="slotProps">
           {{ formatDateTime(slotProps.data.startTime) }}
@@ -73,6 +74,7 @@
         field="endTime"
         header="End Time"
         sortable
+        dataType="Date"
         style="min-width: 5rem"
       >
         <template #body="slotProps">
@@ -111,6 +113,15 @@
           <EfficiencyBar
             v-if="slotProps.data.resources.gpu"
             :value="slotProps.data.efficiency.gpu"
+          />
+          <span v-else>N/A</span>
+        </template>
+      </Column>
+      <Column v-if="full" header="GPU Memory Usage" style="min-width: 10rem">
+        <template #body="slotProps">
+          <EfficiencyBar
+            v-if="slotProps.data.efficiency.gpu_mem_percentage"
+            :value="slotProps.data.efficiency.gpu_mem_percentage"
           />
           <span v-else>N/A</span>
         </template>
@@ -159,6 +170,8 @@ import EfficiencyBar from "./EfficiencyBar.vue";
 import JobCard from "./JobCard.vue";
 import type { RunningJob, FinishedJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity } from "@/lib/utils";
+import { useJobStore } from "@/stores/jobStore";
+const jobStore = useJobStore();
 const selectedJob = ref<FinishedJob | RunningJob | null>(null);
 const keepDisplay = ref(false);
 const JobDetails = ref();
@@ -235,7 +248,9 @@ const handleClick = (event: any, jobData: FinishedJob) => {
 };
 const onDetailHide = () => {
   keepDisplay.value = false;
+  jobStore.showJobDetails = false;
   selectedJob.value = null;
+  
 };
 const onShow = () => {
   console.log("Got Show event");

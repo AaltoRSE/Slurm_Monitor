@@ -13,7 +13,7 @@ export const getStatusSeverity = (status: string) => {
   }
 };
 
-export const formatDateTime = (dateString: string | undefined) => {
+export const formatDateTime = (dateString: string | Date | undefined) => {
   try {
     if (!dateString) {
       return "Invalid date";
