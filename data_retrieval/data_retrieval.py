@@ -142,7 +142,7 @@ def fetch_gpu_graphs(job_id: int) -> GPUGraphData:
 def fetch_jobs() -> None:
     """ Fetch list of jobs for user """
     global db, db_time, queue, current_jobs
-    logger.info("Fetching jobs from database...")
+    logger.info("Loading Jobs from slurm database")
     # we don't always update.
     with lock:
         if (
@@ -161,26 +161,18 @@ def fetch_jobs() -> None:
             )
             headers = extractHeader(jobs.description)
             db_jobs = [DBJob(result, headers)for result in jobs]
-            job_ids = [db_job.get("JobID", int) for db_job in db_jobs]
-            logger.info("Fetching data from prometheus..")
-            logger.info(f"Job IDs: {job_ids}")
+            job_ids = [db_job.get("JobID", int) for db_job in db_jobs]            
             gpu_mem_max = fetch_max_gpu_memories(job_ids)
             gpu_individual_mem_max = fetch_max_individual_gpu_memories(job_ids)
-            gpu_utilization_average = fetch_average_gpu_usage(job_ids)                        
-            logger.info("Data retrieved proceeding...")
-            logger.info(headers)
+            gpu_utilization_average = fetch_average_gpu_usage(job_ids)                                    
             for job in db_jobs:
                 job_id = job.get("JobID", int)
                 gpu_job = job.get("NGpus", int)
                 if gpu_job is not None and gpu_job > 0:                
                     job.set("GPUMemTotalMax", gpu_mem_max[job_id] if job_id in gpu_mem_max else None)
                     job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id] if job_id in gpu_individual_mem_max else None)
-                    job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                        
-            logger.info(headers)
-
-            logger.info("Building jobs")
-            current_jobs = [convert_DB_to_Job(job, queue) for job in db_jobs]
-            logger.info(f"Finished fetching jobs. Total jobs fetched: {len(current_jobs)}")
+                    job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                                    
+            current_jobs = [convert_DB_to_Job(job, queue) for job in db_jobs]            
 
 
 def fetch_running_jobs() -> List[RunningJob]:
@@ -210,7 +202,7 @@ def run_command(command: str) -> Union[str, None]:
         )
         return result.stdout  # Return the standard output
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e.stderr}")
+        logger.error(f"Command '{command}' failed with error: {e.stderr}")        
         return None
 
 
