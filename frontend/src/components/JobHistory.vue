@@ -170,6 +170,8 @@ import EfficiencyBar from "./EfficiencyBar.vue";
 import JobCard from "./JobCard.vue";
 import type { RunningJob, FinishedJob } from "@/lib/types";
 import { formatDateTime, getStatusSeverity } from "@/lib/utils";
+import { useJobStore } from "@/stores/jobStore";
+const jobStore = useJobStore();
 const selectedJob = ref<FinishedJob | RunningJob | null>(null);
 const keepDisplay = ref(false);
 const JobDetails = ref();
@@ -246,7 +248,9 @@ const handleClick = (event: any, jobData: FinishedJob) => {
 };
 const onDetailHide = () => {
   keepDisplay.value = false;
+  jobStore.showJobDetails = false;
   selectedJob.value = null;
+  
 };
 const onShow = () => {
   console.log("Got Show event");

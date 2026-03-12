@@ -157,7 +157,7 @@ def fetch_jobs() -> None:
             db_time = datetime.now()
             queue = SQUEUE()
             jobs = db.cursor().execute(
-                "SELECT * FROM eff WHERE State IN ('RUNNING', 'PENDING', 'COMPLETED', 'FAILED', 'COMPLETING')"
+                "SELECT * FROM eff"
             )
             headers = extractHeader(jobs.description)
             db_jobs = [DBJob(result, headers)for result in jobs]
@@ -281,7 +281,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
     # print(gpus)
     nodes = db_job.get("NNodes", int)
     # print(nodes)
-    nodeList = db_job.get("NodeList")
+    nodeList = db_job.get("NodeList")    
     # print(nodeList)
     gpu_type = db_job.get("GPUType")
     # print(gpu_type)
@@ -307,6 +307,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
             id=id,
             status=status,
             name=name,
+            allocatedNodes=nodeList,
             nodes=nodes,
             startTime=startTime,
             endTime=endTime,
@@ -318,6 +319,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
         # print(efficieny)
         job = FinishedJob(
             id=id,
+            allocatedNodes=nodeList,
             status=status,
             name=name,
             nodes=nodes,

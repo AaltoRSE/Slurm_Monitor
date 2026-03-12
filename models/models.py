@@ -44,6 +44,7 @@ class Job(BaseModel):
     endTime: Optional[Union[datetime, str]] = None
     resources: Resources
     command: str
+    allocatedNodes: Optional[str] = None
     
 class JobEfficiency(BaseModel):
     cpu: Optional[float] = None
@@ -52,8 +53,7 @@ class JobEfficiency(BaseModel):
     gpu_total_mem :Optional[float] = None
     gpu_individual_mem : Optional[float] = None
 
-class RunningJob(Job):
-    allocatedNodes: Optional[str] = None
+class RunningJob(Job):    
     efficiency: Optional[JobEfficiency] = None
 
 class GPUEfficiency(BaseModel):

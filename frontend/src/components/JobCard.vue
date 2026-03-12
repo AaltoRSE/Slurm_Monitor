@@ -71,23 +71,23 @@
                 <EfficiencyBar :value="(job as FinishedJob).efficiency.memory!" />
               </div>
             </div>
-            <div class="flex flex-column w-5">
+            <div v-if="(job as FinishedJob).resources.gpu !== undefined" class="flex flex-column w-5">
               <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu"
                 class="mb-2">
-                <span class="font-semibold mr-2">GPU:</span>
-                <div class="flex flex-row align-items-center gap-2">
-                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
+                <span class="font-semibold mr-2">GPU:
                   <Button @click="showGPUDetails(job.id)" icon="pi pi-info-circle" outlined rounded size="small"
                     aria-label="Job Details"></Button>
+                </span>
+                <div class="flex flex-row align-items-center gap-2">
+                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu!" />
+                  
                 </div>
               </div>
               <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_mem_percentage"
                 class="mb-2">
                 <span class="font-semibold mr-2">GPU Mem per card (max):</span>
                 <div class="flex flex-row align-items-center gap-2">
-                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu_mem_percentage!" />
-                  <Button @click="showGPUDetails(job.id)" icon="pi pi-info-circle" outlined rounded size="small"
-                    aria-label="Job Details"></Button>
+                  <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu_mem_percentage!" />                  
                 </div>
               </div>
                             <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_total_mem_percentage"
@@ -95,8 +95,7 @@
                 <span class="font-semibold mr-2">Total GPU Mem:</span>
                 <div class="flex flex-row align-items-center gap-2">
                   <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu_total_mem_percentage!" />
-                  <Button @click="showGPUDetails(job.id)" icon="pi pi-info-circle" outlined rounded size="small"
-                    aria-label="Job Details"></Button>
+                  
                 </div>
               </div>
 
