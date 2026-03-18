@@ -11,7 +11,7 @@ type Job = {
     gpu?: {
       type?: string;
       amount: number;
-    };
+    } | null;
   };
   command: string;  
 };
@@ -23,8 +23,8 @@ export type RunningJob = Job & {
 export type EfficiencyData = {
     cpu?: number;
     memory?: number;
-    gpu?: number;
-    gpu_total_mem?: number;
+    gpu?: number | null;
+    gpu_total_mem?: number | null;
     gpu_individual_mem?: number | null;
     gpu_mem_percentage?: number | null;
     gpu_total_mem_percentage?: number | null;
