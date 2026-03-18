@@ -1,5 +1,5 @@
 import type { FinishedJob, GPUGraphData, Quota, RunningJob } from "../lib/types";
-export const mock_server = true;
+export const mock_server = false;
 // Mock data for Slurm API
 export const MOCK_DELAY = 500; // Simulate server delay
 export const mockGraphData: GPUGraphData = {
