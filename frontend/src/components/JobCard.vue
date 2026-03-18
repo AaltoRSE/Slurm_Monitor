@@ -72,7 +72,7 @@
               </div>
             </div>
             <div v-if="(job as FinishedJob).resources.gpu !== undefined" class="flex flex-column w-5">
-              <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu"
+              <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu !== null"
                 class="mb-2">
                 <span class="font-semibold mr-2">GPU:
                   <Button @click="showGPUDetails(job.id)" icon="pi pi-info-circle" outlined rounded size="small"
@@ -83,14 +83,14 @@
                   
                 </div>
               </div>
-              <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_mem_percentage"
+              <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_mem_percentage !== null"
                 class="mb-2">
                 <span class="font-semibold mr-2">GPU Mem per card (max):</span>
                 <div class="flex flex-row align-items-center gap-2">
                   <EfficiencyBar :value="(job as FinishedJob).efficiency.gpu_mem_percentage!" />                  
                 </div>
               </div>
-                            <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_total_mem_percentage"
+                            <div v-if="(job as FinishedJob).resources.gpu !== undefined && (job as FinishedJob).efficiency.gpu_total_mem_percentage !== null"
                 class="mb-2">
                 <span class="font-semibold mr-2">Total GPU Mem:</span>
                 <div class="flex flex-row align-items-center gap-2">
