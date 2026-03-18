@@ -130,7 +130,8 @@ import Tag from "primevue/tag";
 import { Button, Popover } from "primevue";
 import ProgressSpinner from "primevue/progressspinner";
 import JobCard from "./JobCard.vue";
-
+import { useJobStore } from "@/stores/jobStore";
+const jobStore = useJobStore();
 import { formatDateTime, getStatusSeverity, isJobStarted } from "@/lib/utils";
 
 defineProps({
@@ -207,6 +208,8 @@ const onDetailHide = () => {
   console.log("Got Hide event");
   keepDisplay.value = false;
   selectedJob.value = null;
+  jobStore.showJobDetails = false;
+
 };
 const onShow = () => {
   console.log("Got Show event");

@@ -29,7 +29,7 @@
         />
       </template>
     </Card>
-    <Dialog v-model:visible="showJobDetails">
+    <Dialog v-model:visible="showJobDetails" @click.stop>
       <GPUDetail> </GPUDetail>
     </Dialog>
   </div>
