@@ -1,6 +1,6 @@
 import type { FinishedJob, Quota, RunningJob, GPUGraphData } from "@/lib/types";
 import axios, { type AxiosResponse } from "axios";
-const mock_server = false;
+const mock_server = true;
 // Mock data for Slurm API
 const MOCK_DELAY = 500; // Simulate server delay
 
@@ -172,7 +172,7 @@ const mockCurrentJobs: Array<RunningJob> = [
     },
     efficiency: {
       gpu: 5,
-      gpu_total_mem: 29476736,
+      gpu_total_mem: 0,
       gpu_individual_mem : 9476736,
     },
     command: "./namd2 +idlepoll simulation.conf",
@@ -318,14 +318,15 @@ export const getCardMemory = (gpu_type: string, node_name: string): number => {
   return card_memory.get(gpu_type) || 0; // Default to 0 if type is unknown
 }
 
+
 const expandData = (job: RunningJob | FinishedJob): RunningJob | FinishedJob => 
   {
     if (job.resources.gpu) {  
       const card_gpu_mem = getCardMemory(job.resources.gpu.type || "", job.allocatedNodes || "");      
       if (card_gpu_mem > 0) {
         if(job.efficiency) {
-          job.efficiency.gpu_mem_percentage = job.efficiency?.gpu_individual_mem ? (job.efficiency.gpu_individual_mem / card_gpu_mem) * 100 : undefined;
-          job.efficiency.gpu_total_mem_percentage = job.efficiency?.gpu_total_mem ? (job.efficiency.gpu_total_mem / (card_gpu_mem * job.resources.gpu.amount)) * 100 : undefined;
+          job.efficiency.gpu_mem_percentage = typeof job.efficiency?.gpu_individual_mem === "number" ? (job.efficiency.gpu_individual_mem / card_gpu_mem) * 100 : null;
+          job.efficiency.gpu_total_mem_percentage = typeof job.efficiency?.gpu_total_mem === "number" ? (job.efficiency.gpu_total_mem / (card_gpu_mem * job.resources.gpu.amount)) * 100 : null;
         }
       }
     }
