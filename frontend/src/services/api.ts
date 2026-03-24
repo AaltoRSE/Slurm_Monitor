@@ -30,7 +30,7 @@ export const getCardMemory = (gpu_type: string, node_name: string): number => {
   }
   if (!gpu_type)
   {
-    return card_memory.get("h200_2g.35gb") // Default to 35GB for unknown types without specified type
+    return card_memory.get("h200_2g.35gb") || 0; // Default to 35GB for unknown types without specified type
   }
   return card_memory.get(gpu_type) || 0; // Default to 0 if type is unknown
 }
