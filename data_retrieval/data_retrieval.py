@@ -108,7 +108,7 @@ def fetch_average_gpu_usage(job_id: List[int]) -> Dict[int,float]:
 
 def fetch_average_recent_gpu_usage(job_id: List[int], user : str) -> Dict[int,float]:   
     """Fetch the average GPU usage of a job from prometheus"""
-    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[10min]))'
+    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[10m]))'
     return fetch_vector_result(query, float)
 
 
