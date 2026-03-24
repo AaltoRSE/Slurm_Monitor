@@ -106,6 +106,12 @@ def fetch_average_gpu_usage(job_id: List[int]) -> Dict[int,float]:
     query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[19d]))'
     return fetch_vector_result(query, float)
 
+def fetch_average_recent_gpu_usage(job_id: List[int], user : str) -> Dict[int,float]:   
+    """Fetch the average GPU usage of a job from prometheus"""
+    query = f'avg by (slurmjobid) (avg_over_time (slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid=~"{ "|".join(map(str, job_id)) }"}}[10min]))'
+    return fetch_vector_result(query, float)
+
+
 def fetch_gpu_usage_over_time(job_id: int, user: str) -> List[VectorValue]:
     """Fetch the GPU usage of a set of job over time from prometheus"""
     result = fetch_matrix_for_normal_query(f'slurm_job_utilization_gpu{{ user="{user}", account!="error", slurmjobid="{job_id}"}}[19d]')
@@ -165,6 +171,7 @@ def fetch_jobs() -> None:
             gpu_mem_max = fetch_max_gpu_memories(job_ids)
             gpu_individual_mem_max = fetch_max_individual_gpu_memories(job_ids)
             gpu_utilization_average = fetch_average_gpu_usage(job_ids)                                    
+            gpu_recent_utilization = fetch_average_recent_gpu_usage(job_ids, os.environ.get("USER", ""))
             for job in db_jobs:
                 job_id = job.get("JobID", int)
                 gpu_job = job.get("NGpus", int)
@@ -172,6 +179,7 @@ def fetch_jobs() -> None:
                     job.set("GPUMemTotalMax", gpu_mem_max[job_id] if job_id in gpu_mem_max else None)
                     job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id] if job_id in gpu_individual_mem_max else None)
                     job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                                    
+                    job.set("GPURecentUtil", gpu_recent_utilization[job_id] if job_id in gpu_recent_utilization else None)
             current_jobs = [convert_DB_to_Job(job, queue) for job in db_jobs]            
 
 
@@ -240,6 +248,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
                 t = datetime.min + timedelta(seconds=float(time))
 
         delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
+    elapsed = db_job.get("Elapsed")
     startTime = db_job.get("Start")
     # print(f" Start: {startTime}")
     # print(f" Start: {startTime}")
@@ -280,6 +289,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
     gpu_eff = db_job.get("GPUAverageUtil", float)
     gpu_mem_max = db_job.get("GPUMemTotalMax", int)
     gpu_individual_mem_max = db_job.get("GPUMemIndividualMax", int)
+    gpu_recent_eff = db_job.get("GPURecentUtil", float)
     cpu_eff = db_job.get("CPUeff", float)
     if cpu_eff:
         cpu_eff = cpu_eff * 100
@@ -296,6 +306,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
     res = Resources(cpus=cpus, memory=memory, gpu=gpu_res)
     if running:
         return RunningJob(
+            elapsed=elapsed,
             id=id,
             status=status,
             name=name,
@@ -306,6 +317,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
             resources=res,
             command=commands[0],
             efficiency=efficiency,
+            gpu_recent_eff=gpu_recent_eff
         )
     else:        
         # print(efficieny)

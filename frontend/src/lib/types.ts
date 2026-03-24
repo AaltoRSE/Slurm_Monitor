@@ -18,6 +18,8 @@ type Job = {
 export type RunningJob = Job & {
   allocatedNodes?: string;
   efficiency?: EfficiencyData;
+  elapsed?: number;
+  gpu_recent_eff?: number | null;
 };
 
 export type EfficiencyData = {

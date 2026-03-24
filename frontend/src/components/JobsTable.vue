@@ -13,7 +13,7 @@
       :sortOrder="-1"
       :tableStyle="`min-width: ${full ? 50.5 : 12.5} rem`"
       :globalFilterFields="['id', 'name', 'status']">    
-    >
+    
       <template #empty> No jobs found </template>
       <template #header>
       <div class="flex w-full justify-content-between">
@@ -92,6 +92,20 @@
           <span class="text-xs text-gray-500">(Projected)</span>
         </template>
       </Column>
+      <Column v-if="full && gpu_jobs" header="GPU Usage (recent)" style="min-width: 10rem">
+        <template #body="slotProps">
+          <EfficiencyBar
+            v-if="slotProps.data.gpu_recent_eff !== null"
+            :value="slotProps.data.gpu_recent_eff!"
+          />
+          <span v-else>N/A</span>
+        </template>
+      </Column>
+      <Column v-if="full" header="Elapsed Time" style="min-width: 10rem">
+        <template #body="slotProps">
+          {{ formatSecondsToHMS(slotProps.data.elapsed) }}          
+        </template>
+      </Column>
       <Column header="Details" style="min-width: 3rem">
         <template #body="slotProps">
           <Button
@@ -119,9 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, nextTick, ref } from "vue";
-import type { RunningJob, FinishedJob } from "@/lib/types";
-
+import { defineProps, nextTick, ref, computed} from "vue";
 import { FilterMatchMode } from '@primevue/core/api';
 import DataTable from "primevue/datatable";
 import InputText from "primevue/inputtext";
@@ -131,12 +143,17 @@ import Column from "primevue/column";
 import Tag from "primevue/tag";
 import { Button, Popover } from "primevue";
 import ProgressSpinner from "primevue/progressspinner";
+
+import type { RunningJob, FinishedJob } from "@/lib/types";
+
+
+import EfficiencyBar from "./EfficiencyBar.vue";
 import JobCard from "./JobCard.vue";
 import { useJobStore } from "@/stores/jobStore";
 const jobStore = useJobStore();
-import { formatDateTime, getStatusSeverity, isJobStarted } from "@/lib/utils";
+import { formatDateTime, getStatusSeverity, isJobStarted, formatSecondsToHMS } from "@/lib/utils";
 
-defineProps({
+const props = defineProps({
   jobs: {
     type: Array<RunningJob | FinishedJob>,
     required: true,
@@ -158,7 +175,9 @@ const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
-
+const gpu_jobs = computed(() => {
+  return props.jobs.some(job => job.resources.gpu);
+});
 const selectedJob = ref<RunningJob | FinishedJob | null>(null);
 const keepDisplay = ref(false);
 const JobDetails = ref();

@@ -55,6 +55,8 @@ class JobEfficiency(BaseModel):
 
 class RunningJob(Job):    
     efficiency: Optional[JobEfficiency] = None
+    elapsed: Optional[int] = None
+    gpu_recent_eff: Optional[float] = None
 
 class GPUEfficiency(BaseModel):
     memory_max: Optional[float] = None

@@ -1,5 +1,5 @@
 import type { FinishedJob, GPUGraphData, Quota, RunningJob } from "../lib/types";
-export const mock_server = false;
+export const mock_server = true;
 // Mock data for Slurm API
 export const MOCK_DELAY = 500; // Simulate server delay
 export const mockGraphData: GPUGraphData = {
@@ -122,6 +122,8 @@ export  const mockCurrentJobs: Array<RunningJob> = [
       gpu_total_mem: 9476736,
       gpu_individual_mem : 9476736,
     },
+    gpu_recent_eff: 5,
+    elapsed: 1600,
   },
   {
     id: "42490",
@@ -135,6 +137,8 @@ export  const mockCurrentJobs: Array<RunningJob> = [
       memory: 25769803776,
     },
     command: "python preprocess.py --input dataset.csv --output processed.pkl",
+    gpu_recent_eff: null,
+    elapsed: 1500,
   },
   {
     id: "42391",
@@ -148,6 +152,8 @@ export  const mockCurrentJobs: Array<RunningJob> = [
       memory: 68719476736,
     },
     command: "./assembly --genome bacteria --threads 16 --memory 64G",
+    gpu_recent_eff: null,
+    elapsed: 2500,
   },
   {
     id: "42393",
@@ -170,6 +176,8 @@ export  const mockCurrentJobs: Array<RunningJob> = [
       gpu_individual_mem : 9476736,
     },
     command: "./namd2 +idlepoll simulation.conf",
+    gpu_recent_eff: 5,
+    elapsed: 20,
   },
 ];
 
