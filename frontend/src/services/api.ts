@@ -12,6 +12,7 @@ const card_memory: Map<string, number> = new Map([
   ["h100", 80 * 1024 * 1024 * 1024],
   ["h200", 141 * 1024 * 1024 * 1024],
   ["b300", 288 * 1024 * 1024 * 1024],
+  ["h200_2g.35gb", 35 * 1024 * 1024 * 1024],
 ]);
 
 const v100_32 = [ "dgx3",  "dgx5", "dgx6", "dgx7", "gpu1", "gpu2", "gpu3", "gpu4", "gpu5", "gpu6", "gpu7", "gpu8", "gpu9",
@@ -26,6 +27,10 @@ export const getCardMemory = (gpu_type: string, node_name: string): number => {
     } else if (v100_16.includes(node_name)) { 
       return 16 * 1024 * 1024 * 1024;
     }
+  }
+  if (!gpu_type)
+  {
+    return card_memory.get("h200_2g.35gb") // Default to 35GB for unknown types without specified type
   }
   return card_memory.get(gpu_type) || 0; // Default to 0 if type is unknown
 }
