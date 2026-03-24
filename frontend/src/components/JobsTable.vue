@@ -3,6 +3,7 @@
     <DataTable
       :value="jobs"
       :loading="loading"
+      v-model:filters="filters"
       stripedRows
       :paginator="jobs.length > 10"
       :rows="10"
@@ -11,11 +12,12 @@
       sortField="id"
       :sortOrder="-1"
       :tableStyle="`min-width: ${full ? 50.5 : 12.5} rem`"
+      :globalFilterFields="['id', 'name', 'status']">    
     >
       <template #empty> No jobs found </template>
       <template #header>
       <div class="flex w-full justify-content-between">
-          <div class="text-xl">Job History</div>
+          <div class="text-xl">Running Jobs</div>
           <IconField>
               <InputIcon>
                   <i class="pi pi-search" />
