@@ -235,7 +235,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
     status = db_job.get("State")
     running = status == "PENDING" or status == "RUNNING"
     # print(f" State: {status}")
-    time = db_job.get("Timelimit")
+    time = db_job.get("TimeLimit")
     # print(f" Timelimit: {time}")
     delta = None
     if not time is None:
