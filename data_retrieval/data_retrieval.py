@@ -239,15 +239,7 @@ def convert_DB_to_Job(db_job: DBJob, queue: SQUEUE) -> Job:
     # print(f" Timelimit: {time}")
     delta = None
     if not time is None:
-        try:
-            t = datetime.strptime(time, "%d-%H:%M:%S")
-        except:
-            try:
-                t = datetime.strptime(time, "%H:%M:%S")
-            except:
-                t = datetime.min + timedelta(seconds=float(time))
-
-        delta = timedelta(days=t.day, hours=t.hour, minutes=t.minute, seconds=t.second)
+        delta= timedelta(seconds=float(time))        
     elapsed = db_job.get("Elapsed")
     startTime = db_job.get("Start")
     # print(f" Start: {startTime}")
