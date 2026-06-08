@@ -1,7 +1,7 @@
 type Job = {
   id: string;
   name: string;
-  status: string;
+  status?: string;
   startTime?: string | Date;
   endTime: string | Date;
   nodes: number;
@@ -63,3 +63,26 @@ export type Quota = {
   files: number;
   used_files: number;
 };
+
+
+export type ShownRunningColumns = {
+  id: boolean;
+  name: boolean;
+  status: boolean;
+  startTime: boolean;
+  endTime: boolean;
+  gpu_usage: boolean;
+  elapsed: boolean;    
+}
+
+export type ShownFinishedColumns = {
+  id: boolean;
+  name: boolean;
+  status: boolean;
+  startTime: boolean;  
+  endTime: boolean;
+  cpu_usage: boolean;
+  memory_usage: boolean;
+  gpu_usage: boolean;
+  gpu_mem_usage: boolean;  
+}

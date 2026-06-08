@@ -53,7 +53,7 @@
       <Column field="status" header="Status" sortable style="min-width: 3rem">
         <template #body="slotProps">
           <Tag
-            :value="slotProps.data.status"
+            :value="slotProps.data.status ? slotProps.data.status : 'Unknown'"
             :severity="getStatusSeverity(slotProps.data.status)"
           />
         </template>
