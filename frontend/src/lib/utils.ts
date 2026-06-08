@@ -1,16 +1,18 @@
-export const getStatusSeverity = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "running":
-      return "success";
-    case "queued":
-      return "info";
-    case "completed":
-      return "success";
-    case "failed":
-      return "danger";
-    default:
-      return "warning";
-  }
+export const getStatusSeverity = (status: string | undefined) => {
+    if(status){
+    switch (status.toLowerCase()) {
+      case "running":
+        return "success";
+      case "queued":
+        return "info";
+      case "completed":
+        return "success";
+      case "failed":
+        return "danger";
+      default:
+        return "warning";
+    }}
+  return "warning";
 };
 
 export const formatDateTime = (dateString: string | Date | undefined) => {
@@ -32,7 +34,10 @@ export const formatDateTime = (dateString: string | Date | undefined) => {
   }
 };
 
-export const isJobStarted = (status: string) => {
+export const isJobStarted = (status: string | undefined) => {
+  if (!status) {
+    return false;
+  }
   switch (status.toLowerCase()) {
     case "running":
       return true;
@@ -49,7 +54,10 @@ export const isJobStarted = (status: string) => {
   }
 };
 
-export const isJobFinished = (status: string) => {
+export const isJobFinished = (status: string | undefined) => {
+  if (!status) {
+    return false;
+  }
   switch (status.toLowerCase()) {
     case "running":
       return false;
