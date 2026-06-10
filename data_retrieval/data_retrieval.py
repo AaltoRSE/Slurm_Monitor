@@ -165,6 +165,11 @@ def fetch_jobs() -> None:
             jobs = db.cursor().execute(
                 "SELECT * FROM eff"
             )
+            jobs_raw_ids = db.cursor().execute(
+                "SELECT JobID, JobIDRawOnly, JobIDnostep, JobIDonly, JobStep FROM slurm"
+            )
+            raw_jobs = [job for job in jobs_raw_ids]
+            job_id_to_raw_job = {job[0]: job[1] for job in raw_jobs}
             headers = extractHeader(jobs.description)
             db_jobs = [DBJob(result, headers)for result in jobs]
             job_ids = [db_job.get("JobID", int) for db_job in db_jobs]            
@@ -173,13 +178,14 @@ def fetch_jobs() -> None:
             gpu_utilization_average = fetch_average_gpu_usage(job_ids)                                    
             gpu_recent_utilization = fetch_average_recent_gpu_usage(job_ids, os.environ.get("USER", ""))
             for job in db_jobs:
-                job_id = job.get("JobID", int)
-                gpu_job = job.get("NGpus", int)
+                job_id = job.get("JobID", str)
+                job_id_raw = job_id_to_raw_job[job_id] if job_id in job_id_to_raw_job else None
+                gpu_job = job.get("NGpus", int)                
                 if gpu_job is not None and gpu_job > 0:                
-                    job.set("GPUMemTotalMax", gpu_mem_max[job_id] if job_id in gpu_mem_max else None)
-                    job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id] if job_id in gpu_individual_mem_max else None)
-                    job.set("GPUAverageUtil", gpu_utilization_average[job_id] if job_id in gpu_utilization_average else None)                                                                                    
-                    job.set("GPURecentUtil", gpu_recent_utilization[job_id] if job_id in gpu_recent_utilization else None)
+                    job.set("GPUMemTotalMax", gpu_mem_max[job_id_raw] if job_id_raw in gpu_mem_max else None)
+                    job.set("GPUMemIndividualMax", gpu_individual_mem_max[job_id_raw] if job_id_raw in gpu_individual_mem_max else None)
+                    job.set("GPUAverageUtil", gpu_utilization_average[job_id_raw] if job_id_raw in gpu_utilization_average else None)                                                                                    
+                    job.set("GPURecentUtil", gpu_recent_utilization[job_id_raw] if job_id_raw in gpu_recent_utilization else None)
             current_jobs = [convert_DB_to_Job(job, queue) for job in db_jobs]            
 
 
