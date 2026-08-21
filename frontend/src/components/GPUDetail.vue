@@ -27,7 +27,7 @@ h2 {
 </style>
 <style>
 .graph {
-  width: 450px;
-  height: 350px;
+  width: 600px;
+  height: 400px;
 }
 </style>

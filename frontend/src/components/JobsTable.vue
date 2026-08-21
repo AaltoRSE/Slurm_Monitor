@@ -27,7 +27,7 @@
           <div>
             <Button
               v-tooltip.left="
-                full ? 'Expand details' : 'Minimize details'
+                full ? 'Minimize details' : 'Expand details'
               "
               :icon="
                 full ? 'pi pi-window-minimize' : 'pi pi-window-maximize'
